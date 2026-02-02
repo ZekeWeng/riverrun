@@ -35,6 +35,7 @@ pub enum Suit {
     Spades = 3,
 }
 
+/// Suit - Constructors
 impl Suit {
     /// Create a suit from a u8 value (0-3).
     pub fn from_u8(value: u8) -> Option<Self> {
@@ -46,7 +47,10 @@ impl Suit {
             _ => None,
         }
     }
+}
 
+/// Suit - Accessors
+impl Suit {
     /// Get the character representation.
     pub fn as_char(self) -> char {
         SUIT_CHARS[self as usize]
@@ -105,6 +109,7 @@ pub enum Rank {
     Ace = 12,
 }
 
+/// Rank - Constructors
 impl Rank {
     /// Create a rank from a u8 value (0-12).
     pub fn from_u8(value: u8) -> Option<Self> {
@@ -125,7 +130,10 @@ impl Rank {
             _ => None,
         }
     }
+}
 
+/// Rank - Accessors
+impl Rank {
     /// Get the character representation.
     pub fn as_char(self) -> char {
         RANK_CHARS[self as usize]
@@ -203,6 +211,7 @@ impl std::error::Error for ParseCardError {}
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub struct Card(pub(crate) u32);
 
+/// Card - Constructors
 impl Card {
     /// Create a new card from Rank and Suit enums.
     pub fn new(rank: Rank, suit: Suit) -> Self {
@@ -221,6 +230,7 @@ impl Card {
         Self::new(rank, suit)
     }
 
+    /// Alias for new().
     pub fn from_rank_suit(rank: Rank, suit: Suit) -> Self {
         Self::new(rank, suit)
     }
@@ -230,6 +240,24 @@ impl Card {
         s.parse().ok()
     }
 
+    /// Create a card from its index (0-51).
+    pub fn from_index(index: usize) -> Option<Self> {
+        if index >= 52 {
+            return None;
+        }
+        let rank = Rank::from_u8((index / 4) as u8)?;
+        let suit = Suit::from_u8((index % 4) as u8)?;
+        Some(Self::new(rank, suit))
+    }
+
+    /// Generate all 52 cards in a standard deck.
+    pub fn all_cards() -> impl Iterator<Item = Card> {
+        (0..52).map(|i| Self::from_index(i).unwrap())
+    }
+}
+
+/// Card - Accessors
+impl Card {
     /// Get the raw 32-bit encoding.
     #[inline]
     pub fn raw(&self) -> u32 {
@@ -283,22 +311,10 @@ impl Card {
     pub fn index(&self) -> usize {
         (self.rank() as usize) * 4 + (self.suit() as usize)
     }
+}
 
-    /// Create a card from its index (0-51).
-    pub fn from_index(index: usize) -> Option<Self> {
-        if index >= 52 {
-            return None;
-        }
-        let rank = Rank::from_u8((index / 4) as u8).unwrap();
-        let suit = Suit::from_u8((index % 4) as u8).unwrap();
-        Some(Self::new(rank, suit))
-    }
-
-    /// Generate all 52 cards in a standard deck.
-    pub fn all_cards() -> impl Iterator<Item = Card> {
-        (0..52).map(|i| Self::from_index(i).unwrap())
-    }
-
+/// Card - Operations
+impl Card {
     /// Check if this card has the same rank as another.
     #[inline]
     pub fn same_rank(&self, other: &Card) -> bool {

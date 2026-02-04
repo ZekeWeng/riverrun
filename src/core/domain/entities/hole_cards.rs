@@ -57,7 +57,18 @@ impl HoleCards {
         self.gap() == 0
     }
 
-    // TODO: Implement preflop hand strength calculation
+    /// Combine hole cards with a 5-card board to form 7 cards.
+    pub fn combine_with_board(&self, board: [Card; 5]) -> [Card; 7] {
+        [
+            self.cards[0],
+            self.cards[1],
+            board[0],
+            board[1],
+            board[2],
+            board[3],
+            board[4],
+        ]
+    }
 }
 
 impl std::fmt::Display for HoleCards {

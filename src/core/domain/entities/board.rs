@@ -40,6 +40,27 @@ impl Board {
         &self.cards
     }
 
+    /// Get the board as a 5-card array (only valid when complete).
+    /// Returns None if the board doesn't have exactly 5 cards.
+    pub fn as_array(&self) -> Option<[Card; 5]> {
+        if self.cards.len() == 5 {
+            Some([
+                self.cards[0],
+                self.cards[1],
+                self.cards[2],
+                self.cards[3],
+                self.cards[4],
+            ])
+        } else {
+            None
+        }
+    }
+
+    /// Get a specific card by index.
+    pub fn card(&self, index: usize) -> Option<Card> {
+        self.cards.get(index).copied()
+    }
+
     /// Get the number of cards on the board.
     pub fn len(&self) -> usize {
         self.cards.len()

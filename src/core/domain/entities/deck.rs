@@ -27,6 +27,14 @@ impl Deck {
     pub fn from_cards(cards: Vec<Card>) -> Self {
         Deck { cards }
     }
+
+    /// Create a deck excluding specific cards.
+    pub fn excluding(dead_cards: &[Card]) -> Self {
+        let cards: Vec<Card> = Card::all_cards()
+            .filter(|c| !dead_cards.contains(c))
+            .collect();
+        Deck { cards }
+    }
 }
 
 /// Accessors
@@ -44,6 +52,11 @@ impl Deck {
     /// Get all cards in the deck.
     pub fn cards(&self) -> &[Card] {
         &self.cards
+    }
+
+    /// Get all cards as a Vec (cloned).
+    pub fn to_vec(&self) -> Vec<Card> {
+        self.cards.clone()
     }
 
     /// Peek at the top card without removing it.

@@ -43,8 +43,11 @@ pub fn binomial(n: usize, k: usize) -> usize {
 
 /// Generate all k-combinations of n elements (indices 0 to n-1).
 pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
-    if k == 0 || k > n {
+    if k > n {
         return Vec::new();
+    }
+    if k == 0 {
+        return vec![Vec::new()];
     }
 
     let mut result = Vec::with_capacity(binomial(n, k));
@@ -84,13 +87,12 @@ pub fn is_straight_pattern(ranks: &[usize]) -> bool {
     let mut sorted = ranks.to_vec();
     sorted.sort_unstable();
 
-    // Check normal straight (5 consecutive ranks)
-    if sorted[4] - sorted[0] == 4 {
+    // Check wheel (A-2-3-4-5)
+    if sorted == vec![0, 1, 2, 3, 12] {
         return true;
     }
-
-    // Check wheel (A-2-3-4-5)
-    sorted == vec![0, 1, 2, 3, 12]
+    // Check normal straight (5 consecutive, strictly increasing)
+    sorted.windows(2).all(|w| w[1] == w[0] + 1)
 }
 
 #[cfg(test)]

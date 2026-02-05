@@ -31,6 +31,10 @@ impl<E: HandEvaluator> ShowdownSolver<E> {
 
 impl<E: HandEvaluator> HandSolver for ShowdownSolver<E> {
     fn solve(&self, players: &[HoleCards], board: &Board) -> ShowdownResult {
+        assert!(
+            players.len() <= MAX_PLAYERS,
+            "players.len() must be <= MAX_PLAYERS"
+        );
         let board_cards = board
             .as_array()
             .expect("Board must be complete (5 cards) for showdown");
@@ -60,6 +64,10 @@ impl<E: HandEvaluator> HandSolver for ShowdownSolver<E> {
     }
 
     fn solve_with_hands(&self, players: &[HoleCards], board: &Board) -> ShowdownResultWithHands {
+        assert!(
+            players.len() <= MAX_PLAYERS,
+            "players.len() must be <= MAX_PLAYERS"
+        );
         let board_cards = board
             .as_array()
             .expect("Board must be complete (5 cards) for showdown");

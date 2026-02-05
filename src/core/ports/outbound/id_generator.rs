@@ -26,7 +26,7 @@ pub struct SequentialIdGenerator {
 impl SequentialIdGenerator {
     /// Create a new sequential generator starting from 1.
     #[must_use]
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         Self {
             counter: AtomicU64::new(0),
             prefix: String::new(),
@@ -50,7 +50,7 @@ impl SequentialIdGenerator {
     /// # Arguments
     /// * `start` - The first ID to generate
     #[must_use]
-    pub fn starting_from(start: u64) -> Self {
+    pub const fn starting_from(start: u64) -> Self {
         Self {
             counter: AtomicU64::new(start.saturating_sub(1)),
             prefix: String::new(),

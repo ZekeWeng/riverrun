@@ -14,25 +14,29 @@ pub struct ShowdownResult {
     pub winner_count: usize,
 }
 
-/// ShowdownResult - Accessors
+/// `ShowdownResult` - Accessors
 impl ShowdownResult {
     /// Get the winner indices as a slice.
+    #[must_use] 
     pub fn winner_indices(&self) -> &[usize] {
         &self.winners[..self.winner_count]
     }
 
     /// Check if there is a single winner.
-    pub fn is_single_winner(&self) -> bool {
+    #[must_use] 
+    pub const fn is_single_winner(&self) -> bool {
         self.winner_count == 1
     }
 
     /// Check if there is a tie (multiple winners).
-    pub fn is_tie(&self) -> bool {
+    #[must_use] 
+    pub const fn is_tie(&self) -> bool {
         self.winner_count > 1
     }
 
     /// Get the single winner index, if there is exactly one winner.
-    pub fn single_winner(&self) -> Option<usize> {
+    #[must_use] 
+    pub const fn single_winner(&self) -> Option<usize> {
         if self.winner_count == 1 {
             Some(self.winners[0])
         } else {
@@ -52,25 +56,29 @@ pub struct ShowdownResultWithHands {
     pub hands: Vec<Hand>,
 }
 
-/// ShowdownResultWithHands - Accessors
+/// `ShowdownResultWithHands` - Accessors
 impl ShowdownResultWithHands {
     /// Get the winner indices as a slice.
+    #[must_use] 
     pub fn winner_indices(&self) -> &[usize] {
         &self.winners[..self.winner_count]
     }
 
     /// Check if there is a single winner.
-    pub fn is_single_winner(&self) -> bool {
+    #[must_use] 
+    pub const fn is_single_winner(&self) -> bool {
         self.winner_count == 1
     }
 
     /// Check if there is a tie (multiple winners).
-    pub fn is_tie(&self) -> bool {
+    #[must_use] 
+    pub const fn is_tie(&self) -> bool {
         self.winner_count > 1
     }
 
     /// Get the single winner index, if there is exactly one winner.
-    pub fn single_winner(&self) -> Option<usize> {
+    #[must_use] 
+    pub const fn single_winner(&self) -> Option<usize> {
         if self.winner_count == 1 {
             Some(self.winners[0])
         } else {
@@ -79,6 +87,7 @@ impl ShowdownResultWithHands {
     }
 
     /// Get the winning hand(s).
+    #[must_use] 
     pub fn winning_hands(&self) -> Vec<&Hand> {
         self.winner_indices()
             .iter()
@@ -87,6 +96,7 @@ impl ShowdownResultWithHands {
     }
 
     /// Get a player's hand by index.
+    #[must_use] 
     pub fn hand(&self, player_idx: usize) -> Option<&Hand> {
         self.hands.get(player_idx)
     }

@@ -58,7 +58,7 @@ pub enum Street {
 impl GameNotification {
     /// Get the game ID from any notification.
     #[must_use]
-    pub fn game_id(&self) -> &GameId {
+    pub const fn game_id(&self) -> &GameId {
         match self {
             Self::GameStarted { game_id, .. }
             | Self::PlayerJoined { game_id, .. }

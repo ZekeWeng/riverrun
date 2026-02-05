@@ -15,7 +15,7 @@ pub trait Clock: Send + Sync {
     /// Get the current timestamp in milliseconds since Unix epoch.
     fn now(&self) -> Timestamp;
 
-    /// Get the current time as a SystemTime.
+    /// Get the current time as a `SystemTime`.
     fn system_time(&self) -> SystemTime {
         UNIX_EPOCH + Duration::from_millis(self.now())
     }

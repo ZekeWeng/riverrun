@@ -84,7 +84,7 @@ impl<R: rand::Rng> RandRandomSource<R> {
     }
 
     /// Get a mutable reference to the underlying RNG.
-    pub fn inner_mut(&mut self) -> &mut R {
+    pub const fn inner_mut(&mut self) -> &mut R {
         &mut self.rng
     }
 }

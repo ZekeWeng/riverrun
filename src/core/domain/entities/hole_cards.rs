@@ -8,57 +8,68 @@ pub struct HoleCards {
     cards: [Card; 2],
 }
 
-/// HoleCards - Constructors
+/// `HoleCards` - Constructors
 impl HoleCards {
     /// Create new hole cards from two cards.
-    pub fn new(first: Card, second: Card) -> Self {
-        HoleCards {
+    #[must_use]
+    pub const fn new(first: Card, second: Card) -> Self {
+        Self {
             cards: [first, second],
         }
     }
 }
 
-/// HoleCards - Accessors
+/// `HoleCards` - Accessors
 impl HoleCards {
     /// Get the first card.
-    pub fn first(&self) -> Card {
+    #[must_use]
+    pub const fn first(&self) -> Card {
         self.cards[0]
     }
 
     /// Get the second card.
-    pub fn second(&self) -> Card {
+    #[must_use]
+    pub const fn second(&self) -> Card {
         self.cards[1]
     }
 
     /// Get both cards as a slice.
-    pub fn cards(&self) -> &[Card; 2] {
+    #[must_use]
+    pub const fn cards(&self) -> &[Card; 2] {
         &self.cards
     }
 
     /// Check if hole cards are suited (same suit).
-    pub fn is_suited(&self) -> bool {
+    #[must_use]
+    pub const fn is_suited(&self) -> bool {
         self.cards[0].same_suit(&self.cards[1])
     }
 
     /// Check if hole cards are a pocket pair (same rank).
-    pub fn is_pair(&self) -> bool {
+    #[must_use]
+    pub const fn is_pair(&self) -> bool {
         self.cards[0].same_rank(&self.cards[1])
     }
 
     /// Get the gap between cards (0 = connected, 1 = one-gapper, etc).
-    pub fn gap(&self) -> u8 {
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    pub const fn gap(&self) -> u8 {
         let combined = self.cards[0].rank_bits() | self.cards[1].rank_bits();
         let span = (31 - combined.leading_zeros()) - combined.trailing_zeros();
-        span.min(13 - span).saturating_sub(1) as u8
+        let min_span = if span < 13 - span { span } else { 13 - span };
+        min_span.saturating_sub(1) as u8
     }
 
     /// Check if hole cards are connected (consecutive ranks).
-    pub fn is_connected(&self) -> bool {
+    #[must_use]
+    pub const fn is_connected(&self) -> bool {
         self.gap() == 0
     }
 
     /// Combine hole cards with a 5-card board to form 7 cards.
-    pub fn combine_with_board(&self, board: [Card; 5]) -> [Card; 7] {
+    #[must_use]
+    pub const fn combine_with_board(&self, board: [Card; 5]) -> [Card; 7] {
         [
             self.cards[0],
             self.cards[1],
@@ -79,13 +90,13 @@ impl std::fmt::Display for HoleCards {
 
 impl From<[Card; 2]> for HoleCards {
     fn from(cards: [Card; 2]) -> Self {
-        HoleCards { cards }
+        Self { cards }
     }
 }
 
 impl From<(Card, Card)> for HoleCards {
     fn from((first, second): (Card, Card)) -> Self {
-        HoleCards::new(first, second)
+        Self::new(first, second)
     }
 }
 

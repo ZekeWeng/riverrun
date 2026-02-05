@@ -26,6 +26,7 @@ pub const FIVE_FROM_SEVEN: [[usize; 5]; 21] = [
 ];
 
 /// Compute the binomial coefficient C(n, k).
+#[must_use] 
 pub fn binomial(n: usize, k: usize) -> usize {
     if k > n {
         return 0;
@@ -42,6 +43,7 @@ pub fn binomial(n: usize, k: usize) -> usize {
 }
 
 /// Generate all k-combinations of n elements (indices 0 to n-1).
+#[must_use] 
 pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
     if k > n {
         return Vec::new();
@@ -79,6 +81,7 @@ pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
 }
 
 /// Check if a set of 5 ranks forms a straight pattern.
+#[must_use] 
 pub fn is_straight_pattern(ranks: &[usize]) -> bool {
     if ranks.len() != 5 {
         return false;

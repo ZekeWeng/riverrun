@@ -11,55 +11,64 @@ pub struct Deck {
 /// Constructors
 impl Deck {
     /// Create a new standard 52-card deck in order.
+    #[must_use]
     pub fn new() -> Self {
         let cards = Rank::all()
             .flat_map(|rank| Suit::all().map(move |suit| Card::new(rank, suit)))
             .collect();
-        Deck { cards }
+        Self { cards }
     }
 
     /// Create an empty deck.
-    pub fn empty() -> Self {
-        Deck { cards: Vec::new() }
+    #[must_use]
+    pub const fn empty() -> Self {
+        Self { cards: Vec::new() }
     }
 
     /// Create a deck from a vector of cards.
-    pub fn from_cards(cards: Vec<Card>) -> Self {
-        Deck { cards }
+    #[must_use]
+    pub const fn from_cards(cards: Vec<Card>) -> Self {
+        Self { cards }
     }
 
     /// Create a deck excluding specific cards.
+    #[must_use]
     pub fn excluding(dead_cards: &[Card]) -> Self {
         let cards: Vec<Card> = Card::all_cards()
             .filter(|c| !dead_cards.contains(c))
             .collect();
-        Deck { cards }
+        Self { cards }
     }
 }
 
 /// Accessors
 impl Deck {
     /// Get the number of remaining cards.
-    pub fn remaining(&self) -> usize {
+    #[must_use]
+    pub const fn remaining(&self) -> usize {
         self.cards.len()
     }
 
     /// Check if the deck is empty.
-    pub fn is_empty(&self) -> bool {
+    #[must_use]
+    pub const fn is_empty(&self) -> bool {
         self.cards.is_empty()
     }
 
     /// Get all cards in the deck.
+    #[must_use]
     pub fn cards(&self) -> &[Card] {
         &self.cards
     }
 
     /// Get all cards as a Vec (cloned).
+    #[must_use]
     pub fn to_vec(&self) -> Vec<Card> {
         self.cards.clone()
     }
 
     /// Peek at the top card without removing it.
+    #[must_use]
     pub fn peek(&self) -> Option<&Card> {
         self.cards.last()
     }
@@ -75,7 +84,7 @@ impl Deck {
 
     /// Reset the deck to a full 52-card deck in order.
     pub fn reset(&mut self) {
-        *self = Deck::new();
+        *self = Self::new();
     }
 
     /// Remove specific cards from the deck (for dealing known cards).
@@ -101,6 +110,9 @@ impl Deck {
 impl Deck {
     /// Deal hole cards to n players (2 cards each).
     /// Returns None if not enough cards for all players.
+    ///
+    /// # Panics
+    /// This function will not panic as we check for sufficient cards first.
     pub fn deal_hole_cards(&mut self, num_players: usize) -> Option<Vec<[Card; 2]>> {
         let total_needed = num_players * 2;
         if self.cards.len() < total_needed {

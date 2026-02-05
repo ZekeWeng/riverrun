@@ -18,42 +18,42 @@ pub struct MonteCarloEquityCalculator<E: HandEvaluator> {
     default_samples: u32,
 }
 
-/// MonteCarloEquityCalculator - Constructors
+/// `MonteCarloEquityCalculator` - Constructors
 impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     /// Create a new Monte Carlo equity calculator with default sample count.
-    pub fn new(evaluator: E) -> Self {
-        MonteCarloEquityCalculator {
+    pub const fn new(evaluator: E) -> Self {
+        Self {
             evaluator,
             default_samples: DEFAULT_SAMPLES,
         }
     }
 
     /// Create a new Monte Carlo equity calculator with custom default sample count.
-    pub fn with_samples(evaluator: E, default_samples: u32) -> Self {
-        MonteCarloEquityCalculator {
+    pub const fn with_samples(evaluator: E, default_samples: u32) -> Self {
+        Self {
             evaluator,
             default_samples,
         }
     }
 }
 
-/// MonteCarloEquityCalculator - Accessors
+/// `MonteCarloEquityCalculator` - Accessors
 impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     /// Get a reference to the underlying evaluator.
-    pub fn evaluator(&self) -> &E {
+    pub const fn evaluator(&self) -> &E {
         &self.evaluator
     }
 
     /// Get the default number of samples.
-    pub fn default_samples(&self) -> u32 {
+    pub const fn default_samples(&self) -> u32 {
         self.default_samples
     }
 }
 
-/// MonteCarloEquityCalculator - Operations
+/// `MonteCarloEquityCalculator` - Operations
 impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     /// Create a deck with dead cards removed.
-    fn remaining_deck(&self, hole_cards: &HoleCards, board: &Board) -> Deck {
+    fn remaining_deck(hole_cards: HoleCards, board: &Board) -> Deck {
         let mut dead_cards = vec![hole_cards.first(), hole_cards.second()];
         dead_cards.extend_from_slice(board.cards());
         Deck::excluding(&dead_cards)
@@ -77,19 +77,19 @@ impl<E: HandEvaluator> EquityCalculator for MonteCarloEquityCalculator<E> {
         num_opponents: usize,
         samples: u32,
     ) -> EquityResult {
-        let remaining = self.remaining_deck(hole_cards, board);
+        let remaining = Self::remaining_deck(*hole_cards, board);
         let cards_to_deal = 5 - board.len();
 
-        self.simulate(hole_cards, board.cards(), &remaining, num_opponents, cards_to_deal, samples)
+        self.simulate(*hole_cards, board.cards(), &remaining, num_opponents, cards_to_deal, samples)
     }
 }
 
-/// MonteCarloEquityCalculator - Simulation
+/// `MonteCarloEquityCalculator` - Simulation
 impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     /// Run Monte Carlo simulation.
     fn simulate(
         &self,
-        hole_cards: &HoleCards,
+        hole_cards: HoleCards,
         board_cards: &[Card],
         remaining: &Deck,
         num_opponents: usize,
@@ -121,7 +121,7 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
             // Fisher-Yates partial shuffle using LCG
             let mut shuffled = cards.clone();
             for i in 0..total_cards_needed {
-                seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+                seed = seed.wrapping_mul(6_364_136_223_846_793_005).wrapping_add(1);
                 let j = i + ((seed >> 33) as usize % (shuffled.len() - i));
                 shuffled.swap(i, j);
             }

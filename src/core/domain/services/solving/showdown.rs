@@ -13,18 +13,18 @@ pub struct ShowdownSolver<E: HandEvaluator> {
     evaluator: E,
 }
 
-/// ShowdownSolver - Constructors
+/// `ShowdownSolver` - Constructors
 impl<E: HandEvaluator> ShowdownSolver<E> {
     /// Create a new solver with the given hand evaluator.
-    pub fn new(evaluator: E) -> Self {
-        ShowdownSolver { evaluator }
+    pub const fn new(evaluator: E) -> Self {
+        Self { evaluator }
     }
 }
 
-/// ShowdownSolver - Accessors
+/// `ShowdownSolver` - Accessors
 impl<E: HandEvaluator> ShowdownSolver<E> {
     /// Get a reference to the underlying evaluator.
-    pub fn evaluator(&self) -> &E {
+    pub const fn evaluator(&self) -> &E {
         &self.evaluator
     }
 }

@@ -76,7 +76,7 @@ impl Board {
     pub fn cards(&self) -> &[Card] {
         &self.cards
     }
-
+  
     /// Get the board as a fixed-size five-card array when the board contains exactly five cards.
     ///
     /// # Returns

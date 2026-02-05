@@ -113,7 +113,8 @@ impl HoleCards {
     pub fn gap(&self) -> u8 {
         let combined = self.cards[0].rank_bits() | self.cards[1].rank_bits();
         let span = (31 - combined.leading_zeros()) - combined.trailing_zeros();
-        span.min(13 - span).saturating_sub(1) as u8
+        let min_span = if span < 13 - span { span } else { 13 - span };
+        min_span.saturating_sub(1) as u8
     }
 
     /// Determines whether the two hole cards have consecutive ranks (connected).

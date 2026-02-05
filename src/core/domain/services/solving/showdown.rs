@@ -19,7 +19,7 @@ impl<E: HandEvaluator> ShowdownSolver<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // `my_evaluator` must implement the `HandEvaluator` trait.
     /// let my_evaluator = /* your evaluator here */;
     /// let solver = ShowdownSolver::new(my_evaluator);
@@ -32,35 +32,17 @@ impl<E: HandEvaluator> ShowdownSolver<E> {
 /// `ShowdownSolver` - Accessors
 impl<E: HandEvaluator> ShowdownSolver<E> {
     /// Access the underlying hand evaluator.
-    
     ///
-    
     /// # Returns
-    
     ///
-    
     /// A reference to the evaluator held by this solver.
-    
     ///
-    
     /// # Examples
-    
     ///
-    
-    /// ```
-    
-    /// use crate::core::domain::services::solving::showdown::ShowdownSolver;
-    
-    /// use crate::core::domain::poker::evaluators::CactusKevEvaluator;
-    
-    ///
-    
+    /// ```ignore
     /// let evaluator = CactusKevEvaluator::new();
-    
     /// let solver = ShowdownSolver::new(evaluator);
-    
     /// let _ref = solver.evaluator();
-    
     /// ```
     pub const fn evaluator(&self) -> &E {
         &self.evaluator

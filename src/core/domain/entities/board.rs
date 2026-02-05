@@ -16,12 +16,13 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::{Board, Street};
     /// let b = Board::new();
     /// assert!(b.is_empty());
     /// assert_eq!(b.len(), 0);
     /// assert_eq!(b.street(), Street::Preflop);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             cards: Vec::new(),
@@ -42,12 +43,13 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::{Board, Street};
     /// // Empty board -> Preflop
     /// let b = Board::with_cards(vec![]).unwrap();
     /// assert!(b.is_empty());
     /// assert_eq!(b.street(), Street::Preflop);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn with_cards(cards: Vec<Card>) -> Option<Self> {
         let street = match cards.len() {
             0 => Street::Preflop,
@@ -69,10 +71,11 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::Board;
     /// let board = Board::new();
     /// assert!(board.cards().is_empty());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn cards(&self) -> &[Card] {
         &self.cards
     }
@@ -86,6 +89,8 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::Board;
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let board = Board::with_cards(vec![
     ///     Card::new(Rank::Ace, Suit::Spades),
     ///     Card::new(Rank::King, Suit::Hearts),
@@ -97,7 +102,7 @@ impl Board {
     /// let arr = board.as_array().unwrap();
     /// assert_eq!(arr, [board.cards()[0], board.cards()[1], board.cards()[2], board.cards()[3], board.cards()[4]]);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn as_array(&self) -> Option<[Card; 5]> {
         if self.cards.len() == 5 {
             Some([
@@ -125,10 +130,11 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::Board;
     /// let b = Board::new();
     /// assert!(b.card(0).is_none());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn card(&self, index: usize) -> Option<Card> {
         self.cards.get(index).copied()
     }
@@ -142,10 +148,11 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::Board;
     /// let b = Board::new();
     /// assert_eq!(b.len(), 0);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn len(&self) -> usize {
         self.cards.len()
     }
@@ -155,10 +162,11 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::Board;
     /// let b = Board::new();
     /// assert!(b.is_empty());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.cards.is_empty()
     }
@@ -168,10 +176,11 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::Board;
     /// let b = Board::new();
     /// assert!(!b.is_complete());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn is_complete(&self) -> bool {
         self.street == Street::River
     }
@@ -185,9 +194,11 @@ impl Board {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::{Board, Street};
     /// let board = Board::new();
     /// assert_eq!(board.street(), Street::Preflop);
-    /// ``` 
+    /// ```
+    #[must_use]
     pub const fn street(&self) -> Street {
         self.street
     }
@@ -253,7 +264,14 @@ impl std::fmt::Display for Board {
     /// # Examples
     ///
     /// ```
-    /// let b = make_flop();
+    /// use riverrun::core::domain::entities::board::Board;
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
+    /// let mut b = Board::new();
+    /// b.deal_flop(
+    ///     Card::new(Rank::Ace, Suit::Spades),
+    ///     Card::new(Rank::King, Suit::Hearts),
+    ///     Card::new(Rank::Queen, Suit::Diamonds),
+    /// );
     /// assert_eq!(b.to_string(), "[As Kh Qd]");
     /// ```
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -280,6 +298,7 @@ impl std::fmt::Display for Street {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::board::Street;
     /// let s = Street::Flop;
     /// assert_eq!(s.to_string(), "Flop");
     /// ```

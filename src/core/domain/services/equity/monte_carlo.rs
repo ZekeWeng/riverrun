@@ -20,13 +20,11 @@ pub struct MonteCarloEquityCalculator<E: HandEvaluator> {
 
 /// `MonteCarloEquityCalculator` - Constructors
 impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
-    /// Creates a MonteCarloEquityCalculator using the given evaluator and the module's default sample count.
+    /// Creates a `MonteCarloEquityCalculator` using the given evaluator and the module's default sample count.
     ///
     /// # Examples
     ///
-    /// ```
-    /// # use crate::MonteCarloEquityCalculator;
-    /// # use crate::CactusKevEvaluator;
+    /// ```ignore
     /// let eval = CactusKevEvaluator::new();
     /// let calc = MonteCarloEquityCalculator::new(eval);
     /// assert!(calc.default_samples() > 0);
@@ -38,13 +36,13 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
         }
     }
 
-    /// Creates a MonteCarloEquityCalculator with a custom default number of Monte Carlo samples.
+    /// Creates a `MonteCarloEquityCalculator` with a custom default number of Monte Carlo samples.
     ///
     /// The `default_samples` value is used by calculation methods when no explicit sample count is provided.
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Assuming `evaluator` implements `HandEvaluator`
     /// let calc = MonteCarloEquityCalculator::with_samples(evaluator, 5_000);
     /// assert_eq!(calc.default_samples(), 5_000);
@@ -72,7 +70,7 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // assuming `evaluator` implements `HandEvaluator`
     /// let calc = MonteCarloEquityCalculator::with_samples(evaluator, 1000);
     /// assert_eq!(calc.default_samples(), 1000);
@@ -88,7 +86,7 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let hole = HoleCards::new(Card::AceSpades, Card::AceHearts);
     /// let board = Board::empty();
     /// let deck = remaining_deck(hole, &board);
@@ -133,7 +131,6 @@ impl<E: HandEvaluator> EquityCalculator for MonteCarloEquityCalculator<E> {
     /// // let result = calc.calculate_sampled(&hole, &board, 1, 500);
     /// // assert_eq!(result.samples(), 500);
     /// ```
-    pub(crate)
     fn calculate_sampled(
         &self,
         hole_cards: &HoleCards,

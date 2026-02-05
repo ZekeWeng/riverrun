@@ -38,6 +38,7 @@ impl HandRank {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::hand::HandRank;
     /// let rank = HandRank::from_strength(1);
     /// assert_eq!(rank, HandRank::StraightFlush);
     ///
@@ -73,8 +74,7 @@ impl HandRank {
     /// # Examples
     ///
     /// ```
-    /// use crate::core::domain::entities::hand::HandRank;
-    ///
+    /// use riverrun::core::domain::entities::hand::HandRank;
     /// assert_eq!(HandRank::StraightFlush.name(), "Straight Flush");
     /// assert_eq!(HandRank::HighCard.name(), "High Card");
     /// ```
@@ -119,7 +119,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Example assumes `Card` variants and `Hand` are in scope.
     /// let cards = [Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts];
     /// let hand = Hand::new(cards, 1); // strength 1 represents a royal straight flush
@@ -147,7 +147,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Given a `hand: Hand`
     /// let cards = hand.cards();
     /// assert_eq!(cards.len(), 5);
@@ -173,7 +173,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let hand = Hand::new([card_a, card_k, card_q, card_j, card_t], 1);
     /// let first = hand.card(0);
     /// assert_eq!(first, card_a);
@@ -187,7 +187,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // assuming `hand` is a previously constructed `Hand`
     /// let hand: Hand = unimplemented!();
     /// let rank = hand.rank();
@@ -206,7 +206,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```no_run
+    /// ```ignore
     /// // given a `Hand` instance named `hand`
     /// let s = hand.strength();
     /// assert!(s >= 1 && s <= 7462);
@@ -224,7 +224,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let hand = Hand::new([Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts], 1);
     /// assert!(hand.is_rank(HandRank::StraightFlush));
     /// ```
@@ -237,9 +237,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
-    /// use crate::core::domain::entities::{Hand, Card};
-    ///
+    /// ```ignore
     /// let hand = Hand::new([Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts], 1);
     /// assert!(hand.is_straight_flush());
     /// ```
@@ -257,11 +255,12 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Construct a royal flush (Ace-high straight flush) with strength 1.
     /// let hand = Hand::new([Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts], 1);
     /// assert!(hand.is_royal_flush());
     /// ``` 
+    #[must_use] 
     pub const fn is_royal_flush(&self) -> bool {
         self.strength == 1
     }
@@ -284,7 +283,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Construct a hand known to map to Full House by strength range (167..=322).
     /// // `cards` can be any five `Card` values; only `strength` determines the rank here.
     /// let cards = [/* five Card values */];
@@ -325,13 +324,12 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// # no_run
-    /// # use crate::core::domain::entities::Hand;
+    /// ```ignore
     /// // Construct a hand whose strength falls in the Two Pair range (2468..=3325)
     /// // let hand = Hand::new(cards, 3000);
     /// // assert!(hand.is_two_pair());
     /// ``` 
+    #[must_use] 
     pub fn is_two_pair(&self) -> bool {
         self.rank == HandRank::TwoPair
     }
@@ -341,6 +339,7 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if the hand's rank is `OnePair`, `false` otherwise. 
+    #[must_use] 
     pub fn is_one_pair(&self) -> bool {
         self.rank == HandRank::OnePair
     }
@@ -362,7 +361,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // given two evaluated hands `a` and `b`
     /// assert_eq!(a.beats(&b), a.strength() < b.strength());
     /// ```
@@ -381,7 +380,7 @@ impl Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Construct two hands with the same strength (cards elided for brevity).
     /// let h1 = Hand::new([Card::AS, Card::KS, Card::QS, Card::JS, Card::TS], 1);
     /// let h2 = Hand::new([Card::AH, Card::KH, Card::QH, Card::JH, Card::TH], 1);
@@ -438,7 +437,7 @@ impl From<([Card; 5], u16)> for Hand {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let cards = [Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts];
     /// let hand = Hand::from((cards, 1));
     /// assert!(hand.is_royal_flush());

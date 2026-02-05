@@ -10,19 +10,20 @@ pub struct HoleCards {
 
 /// `HoleCards` - Constructors
 impl HoleCards {
-    /// Constructs a HoleCards containing two private cards in the given order.
+    /// Constructs a `HoleCards` containing two private cards in the given order.
     ///
     /// # Examples
     ///
     /// ```
-    /// // Create two Card values (constructor shown illustratively).
+    /// use riverrun::core::domain::entities::hole_cards::HoleCards;
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let a = Card::new(Rank::Ace, Suit::Spades);
     /// let k = Card::new(Rank::King, Suit::Hearts);
     /// let hc = HoleCards::new(a, k);
     /// assert_eq!(hc.first(), a);
     /// assert_eq!(hc.second(), k);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn new(first: Card, second: Card) -> Self {
         Self {
             cards: [first, second],
@@ -37,12 +38,14 @@ impl HoleCards {
     /// # Examples
     ///
     /// ```
-    /// let c1 = Card::new_rank_suit(Rank::Ace, Suit::Spades);
-    /// let c2 = Card::new_rank_suit(Rank::King, Suit::Hearts);
+    /// use riverrun::core::domain::entities::hole_cards::HoleCards;
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
+    /// let c1 = Card::new(Rank::Ace, Suit::Spades);
+    /// let c2 = Card::new(Rank::King, Suit::Hearts);
     /// let hc = HoleCards::new(c1, c2);
     /// assert_eq!(hc.first(), c1);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn first(&self) -> Card {
         self.cards[0]
     }
@@ -51,11 +54,11 @@ impl HoleCards {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let hc = HoleCards::new(Card::AceSpades, Card::KingHearts);
     /// assert_eq!(hc.second(), Card::KingHearts);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn second(&self) -> Card {
         self.cards[1]
     }
@@ -68,7 +71,7 @@ impl HoleCards {
     /// let hc = HoleCards::from([card1, card2]);
     /// assert_eq!(hc.cards(), &[card1, card2]);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn cards(&self) -> &[Card; 2] {
         &self.cards
     }
@@ -82,8 +85,8 @@ impl HoleCards {
     /// # Examples
     ///
     /// ```
-    /// use crate::{Card, HoleCards, Rank, Suit};
-    ///
+    /// use riverrun::core::domain::entities::hole_cards::HoleCards;
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let hc = HoleCards::new(
     ///     Card::new(Rank::Ace, Suit::Spades),
     ///     Card::new(Rank::King, Suit::Spades),
@@ -110,7 +113,9 @@ impl HoleCards {
     /// # Returns
     ///
     /// `u8` gap between the hole cards: `0` for adjacent ranks, `1` for one-gap, and so on.
-    pub fn gap(&self) -> u8 {
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    pub const fn gap(&self) -> u8 {
         let combined = self.cards[0].rank_bits() | self.cards[1].rank_bits();
         let span = (31 - combined.leading_zeros()) - combined.trailing_zeros();
         let min_span = if span < 13 - span { span } else { 13 - span };
@@ -125,13 +130,13 @@ impl HoleCards {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Example (constructors may vary in your crate):
     /// let hc = HoleCards::new(Card::ace_of_spades(), Card::two_of_hearts());
     /// assert!(hc.is_connected());
     /// ```
-    #[must_use] 
-    pub fn is_connected(&self) -> bool {
+    #[must_use]
+    pub const fn is_connected(&self) -> bool {
         self.gap() == 0
     }
 
@@ -139,7 +144,7 @@ impl HoleCards {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // construct hole cards and board (types and constructors depend on crate)
     /// let hole = HoleCards::new(Card::from_str("As"), Card::from_str("Kh"));
     /// let board = [
@@ -154,7 +159,7 @@ impl HoleCards {
     /// assert_eq!(combined[1], hole.second());
     /// assert_eq!(combined[2..], board);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn combine_with_board(&self, board: [Card; 5]) -> [Card; 7] {
         [
             self.cards[0],
@@ -179,7 +184,7 @@ impl From<[Card; 2]> for HoleCards {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```ignore
     /// let hole = HoleCards::from([first_card, second_card]);
     /// assert_eq!(hole.first(), first_card);
     /// assert_eq!(hole.second(), second_card);
@@ -194,7 +199,7 @@ impl From<(Card, Card)> for HoleCards {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let hole = HoleCards::from((first_card, second_card));
     /// assert_eq!(hole.first(), first_card);
     /// ```

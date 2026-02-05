@@ -21,10 +21,11 @@ impl ShowdownResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::{ShowdownResult, MAX_PLAYERS};
     /// let result = ShowdownResult { winners: [3, 5, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 2 };
     /// assert_eq!(result.winner_indices(), &[3, 5]);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn winner_indices(&self) -> &[usize] {
         &self.winners[..self.winner_count]
     }
@@ -34,10 +35,11 @@ impl ShowdownResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::{ShowdownResult, MAX_PLAYERS};
     /// let res = ShowdownResult { winners: [0; MAX_PLAYERS], winner_count: 1 };
     /// assert!(res.is_single_winner());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn is_single_winner(&self) -> bool {
         self.winner_count == 1
     }
@@ -47,11 +49,11 @@ impl ShowdownResult {
     /// # Examples
     ///
     /// ```
-    /// // construct a ShowdownResult with two winners
+    /// use riverrun::core::ports::inbound::{ShowdownResult, MAX_PLAYERS};
     /// let res = ShowdownResult { winners: [0usize; MAX_PLAYERS], winner_count: 2 };
     /// assert!(res.is_tie());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn is_tie(&self) -> bool {
         self.winner_count > 1
     }
@@ -65,10 +67,11 @@ impl ShowdownResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::{ShowdownResult, MAX_PLAYERS};
     /// let res = ShowdownResult { winners: [2, 0, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 1 };
     /// assert_eq!(res.single_winner(), Some(2));
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn single_winner(&self) -> Option<usize> {
         if self.winner_count == 1 {
             Some(self.winners[0])
@@ -95,11 +98,11 @@ impl ShowdownResultWithHands {
     ///
     /// # Examples
     ///
-    /// ```
-    /// let result = ShowdownResult { winners: [3, 5, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 2 };
+    /// ```ignore
+    /// let result = ShowdownResultWithHands { winners: [3, 5, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 2, hands: vec![] };
     /// assert_eq!(result.winner_indices(), &[3, 5]);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn winner_indices(&self) -> &[usize] {
         &self.winners[..self.winner_count]
     }
@@ -108,11 +111,11 @@ impl ShowdownResultWithHands {
     ///
     /// # Examples
     ///
-    /// ```
-    /// let res = ShowdownResult { winners: [0; MAX_PLAYERS], winner_count: 1 };
+    /// ```ignore
+    /// let res = ShowdownResultWithHands { winners: [0; MAX_PLAYERS], winner_count: 1, hands: vec![] };
     /// assert!(res.is_single_winner());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn is_single_winner(&self) -> bool {
         self.winner_count == 1
     }
@@ -121,12 +124,11 @@ impl ShowdownResultWithHands {
     ///
     /// # Examples
     ///
-    /// ```
-    /// // construct a ShowdownResult with two winners
-    /// let res = ShowdownResult { winners: [0usize; MAX_PLAYERS], winner_count: 2 };
+    /// ```ignore
+    /// let res = ShowdownResultWithHands { winners: [0usize; MAX_PLAYERS], winner_count: 2, hands: vec![] };
     /// assert!(res.is_tie());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn is_tie(&self) -> bool {
         self.winner_count > 1
     }
@@ -139,11 +141,11 @@ impl ShowdownResultWithHands {
     ///
     /// # Examples
     ///
-    /// ```
-    /// let res = ShowdownResult { winners: [2, 0, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 1 };
+    /// ```ignore
+    /// let res = ShowdownResultWithHands { winners: [2, 0, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 1, hands: vec![] };
     /// assert_eq!(res.single_winner(), Some(2));
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn single_winner(&self) -> Option<usize> {
         if self.winner_count == 1 {
             Some(self.winners[0])

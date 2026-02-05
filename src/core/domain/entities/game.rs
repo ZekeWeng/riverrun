@@ -23,8 +23,10 @@ impl Game {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::game::Game;
+    /// use rand::SeedableRng;
     /// let mut rng = rand::rngs::StdRng::seed_from_u64(42);
-    /// let game = crate::core::domain::entities::game::Game::new(6, &mut rng).unwrap();
+    /// let game = Game::new(6, &mut rng).unwrap();
     /// assert_eq!(game.num_players(), 6);
     /// assert_eq!(game.remaining_cards(), 52);
     /// ```
@@ -51,12 +53,14 @@ impl Game {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::game::Game;
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::new();
     /// let game = Game::with_deck(6, deck).expect("valid player count");
     /// assert_eq!(game.num_players(), 6);
     /// assert_eq!(game.remaining_cards(), 52);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn with_deck(num_players: usize, deck: Deck) -> Option<Self> {
         if !(2..=10).contains(&num_players) {
             return None;
@@ -78,11 +82,13 @@ impl Game {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::game::Game;
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::new();
     /// let game = Game::with_deck(6, deck).unwrap();
     /// assert_eq!(game.num_players(), 6);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn num_players(&self) -> usize {
         self.num_players
     }
@@ -102,12 +108,15 @@ impl Game {
     /// # Examples
     ///
     /// ```
-    /// let mut rng = make_rng();
+    /// use riverrun::core::domain::entities::game::Game;
+    /// use riverrun::core::domain::entities::board::Street;
+    /// use rand::SeedableRng;
+    /// let mut rng = rand::rngs::StdRng::seed_from_u64(42);
     /// let game = Game::new(2, &mut rng).unwrap();
     /// let board_ref = game.board();
     /// assert_eq!(board_ref.street(), Street::Preflop);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn board(&self) -> &Board {
         &self.board
     }
@@ -119,12 +128,14 @@ impl Game {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::game::Game;
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::new();
     /// let game = Game::with_deck(2, deck).unwrap();
     /// // No hole cards dealt yet
     /// assert!(game.player_hole_cards(0).is_none());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn player_hole_cards(&self, player: usize) -> Option<&[Card; 2]> {
         self.hole_cards.get(player)
     }
@@ -136,12 +147,13 @@ impl Game {
     /// # Examples
     ///
     /// ```
-    /// // Construct a new two-player game and observe no hole cards before dealing.
-    /// let mut rng = rand::thread_rng();
-    /// let game = crate::core::domain::entities::game::Game::new(2, &mut rng).unwrap();
+    /// use riverrun::core::domain::entities::game::Game;
+    /// use rand::SeedableRng;
+    /// let mut rng = rand::rngs::StdRng::seed_from_u64(42);
+    /// let game = Game::new(2, &mut rng).unwrap();
     /// assert!(game.all_hole_cards().is_empty());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn all_hole_cards(&self) -> &[[Card; 2]] {
         &self.hole_cards
     }
@@ -155,7 +167,8 @@ impl Game {
     /// # Examples
     ///
     /// ```
-    /// // create a new game with a full deck and two players
+    /// use riverrun::core::domain::entities::game::Game;
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let game = Game::with_deck(2, Deck::new()).unwrap();
     /// assert_eq!(game.remaining_cards(), 52);
     /// ```
@@ -169,15 +182,14 @@ impl Game {
     /// # Examples
     ///
     /// ```
-    /// use crate::core::domain::entities::game::Game;
+    /// use riverrun::core::domain::entities::game::Game;
     /// use rand::rngs::StdRng;
     /// use rand::SeedableRng;
-    ///
     /// let mut rng = StdRng::seed_from_u64(0);
     /// let game = Game::new(2, &mut rng).unwrap();
     /// assert!(!game.is_showdown());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn is_showdown(&self) -> bool {
         self.board.street() == Street::River
     }

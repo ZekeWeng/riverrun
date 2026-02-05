@@ -44,10 +44,12 @@ impl Suit {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Suit;
     /// assert_eq!(Suit::from_u8(0), Some(Suit::Clubs));
     /// assert_eq!(Suit::from_u8(3), Some(Suit::Spades));
     /// assert_eq!(Suit::from_u8(4), None);
     /// ``` 
+    #[must_use] 
     pub const fn from_u8(value: u8) -> Option<Self> {
         match value {
             0 => Some(Self::Clubs),
@@ -66,22 +68,23 @@ impl Suit {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Suit;
     /// let c = Suit::Spades.as_char();
     /// assert_eq!(c, 's');
     /// ``` 
+    #[must_use] 
     pub const fn as_char(self) -> char {
         SUIT_CHARS[self as usize]
     }
 
     /// Get the bit mask for this suit in the Cactus Kev card encoding.
     ///
-    /// The mask has a single bit set at position (suit_index + 12).
+    /// The mask has a single bit set at position (`suit_index` + 12).
     ///
     /// # Examples
     ///
     /// ```
-    /// use crate::core::domain::entities::card::Suit;
-    ///
+    /// use riverrun::core::domain::entities::card::Suit;
     /// assert_eq!(Suit::Clubs.bit_mask(), 1u32 << 12);
     /// assert_eq!(Suit::Spades.bit_mask(), 1u32 << 15);
     /// ```
@@ -95,6 +98,7 @@ impl Suit {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Suit;
     /// let suits: Vec<_> = Suit::all().collect();
     /// assert_eq!(suits.len(), 4);
     /// assert_eq!(suits[0], Suit::Clubs);
@@ -123,6 +127,7 @@ impl FromStr for Suit {
     ///
     /// ```
     /// use std::str::FromStr;
+    /// use riverrun::core::domain::entities::card::Suit;
     /// let s = Suit::from_str("s").unwrap();
     /// assert_eq!(s, Suit::Spades);
     /// ```
@@ -168,6 +173,7 @@ impl Rank {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Rank;
     /// assert_eq!(Rank::from_u8(0), Some(Rank::Two));
     /// assert_eq!(Rank::from_u8(12), Some(Rank::Ace));
     /// assert_eq!(Rank::from_u8(13), None);
@@ -204,6 +210,7 @@ impl Rank {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Rank;
     /// let c = Rank::Ace.as_char();
     /// assert_eq!(c, 'A');
     /// ```
@@ -219,7 +226,7 @@ impl Rank {
     /// # Examples
     ///
     /// ```
-    /// use crate::core::domain::entities::card::Rank;
+    /// use riverrun::core::domain::entities::card::Rank;
     /// assert_eq!(Rank::Ace.prime(), 41);
     /// ```
     #[must_use] 
@@ -232,6 +239,7 @@ impl Rank {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Rank;
     /// let mask = Rank::Ace.bit_mask();
     /// assert_eq!(mask, 1u32 << (12 + 16));
     /// ```
@@ -242,13 +250,19 @@ impl Rank {
 
     /// Iterate over all ranks from Two to Ace in ascending order.
     ///
+    /// # Panics
+    ///
+    /// This function does not panic. The internal `unwrap()` is safe because all
+    /// indices in the range `0..13` correspond to valid `Rank` variants.
+    ///
     /// # Examples
     ///
     /// ```
-    /// let ranks: Vec<_> = crate::Rank::all().collect();
+    /// use riverrun::core::domain::entities::card::Rank;
+    /// let ranks: Vec<_> = Rank::all().collect();
     /// assert_eq!(ranks.len(), 13);
-    /// assert_eq!(ranks[0], crate::Rank::Two);
-    /// assert_eq!(ranks[12], crate::Rank::Ace);
+    /// assert_eq!(ranks[0], Rank::Two);
+    /// assert_eq!(ranks[12], Rank::Ace);
     /// ```
     pub fn all() -> impl Iterator<Item = Self> {
         (0..13).map(|i| Self::from_u8(i).unwrap())
@@ -276,6 +290,7 @@ impl FromStr for Rank {
     ///
     /// ```
     /// use std::str::FromStr;
+    /// use riverrun::core::domain::entities::card::Rank;
     /// assert_eq!(Rank::from_str("A").unwrap(), Rank::Ace);
     /// assert_eq!(Rank::from_str("t").unwrap(), Rank::Ten);
     /// assert!(Rank::from_str("10").is_err());
@@ -318,6 +333,7 @@ impl fmt::Display for ParseCardError {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::ParseCardError;
     /// let e = ParseCardError::InvalidLength;
     /// assert_eq!(format!("{}", e), "card string must be exactly 2 characters");
     /// ```
@@ -343,6 +359,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let c = Card::new(Rank::Ace, Suit::Spades);
     /// assert_eq!(c.to_string(), "As");
     /// ```
@@ -365,6 +382,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Card;
     /// let c = Card::from_raw(12, 3); // Ace of Spades
     /// assert_eq!(c.index(), 51);
     /// ```
@@ -384,6 +402,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let c = Card::from_rank_suit(Rank::Ace, Suit::Spades);
     /// assert_eq!(c.to_string(), "As");
     /// ```
@@ -399,6 +418,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Card;
     /// let c = Card::from_string("As").unwrap();
     /// assert_eq!(c.to_string(), "As");
     /// ```
@@ -415,6 +435,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Card;
     /// // 0 => 2 of clubs ("2c"), 51 => Ace of spades ("As")
     /// assert_eq!(Card::from_index(0).map(|c| c.to_string()), Some(String::from("2c")));
     /// assert_eq!(Card::from_index(51).map(|c| c.to_string()), Some(String::from("As")));
@@ -433,10 +454,16 @@ impl Card {
 
     /// Generates the 52 cards of a standard deck.
     ///
+    /// # Panics
+    ///
+    /// This function does not panic. The internal `unwrap()` is safe because all
+    /// indices in the range `0..52` correspond to valid cards.
+    ///
     /// # Examples
     ///
     /// ```
-    /// let cards: Vec<_> = all_cards().collect();
+    /// use riverrun::core::domain::entities::card::Card;
+    /// let cards: Vec<_> = Card::all_cards().collect();
     /// assert_eq!(cards.len(), 52);
     /// assert_eq!(cards[0].index(), 0);
     /// assert_eq!(cards[51].index(), 51);
@@ -453,10 +480,12 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let card = Card::from_rank_suit(Rank::Two, Suit::Clubs);
     /// let raw: u32 = card.raw();
     /// let _ = raw; // raw is the packed 32-bit card encoding
     /// ``` 
+    #[must_use] 
     pub const fn raw(&self) -> u32 {
         self.0
     }
@@ -470,11 +499,12 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let c = Card::new(Rank::Ace, Suit::Spades);
     /// assert_eq!(c.prime(), 41);
     /// ```
     #[inline]
-    #[must_use] 
+    #[must_use]
     pub const fn prime(&self) -> u32 {
         self.0 & 0xFF
     }
@@ -488,6 +518,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let c = Card::new(Rank::Two, Suit::Clubs);
     /// assert_eq!(c.rank(), 0);
     ///
@@ -509,6 +540,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let c = Card::new(Rank::Ace, Suit::Spades);
     /// assert_eq!(c.rank_enum(), Rank::Ace);
     /// ```
@@ -529,6 +561,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Card;
     /// let c = Card::from_string("As").unwrap(); // Ace of spades
     /// assert_eq!(c.suit_bits(), 0b1000);
     /// ```
@@ -552,11 +585,12 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let c = Card::new(Rank::Ace, Suit::Spades);
     /// assert_eq!(c.rank_bits(), 1 << 12);
     /// ```
     #[inline]
-    #[must_use] 
+    #[must_use]
     pub const fn rank_bits(&self) -> u32 {
         self.0 >> 16
     }
@@ -566,6 +600,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Card;
     /// let two_clubs = Card::from_index(0).unwrap();
     /// assert_eq!(two_clubs.suit(), 0);
     ///
@@ -588,6 +623,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let c = Card::from_rank_suit(Rank::Ace, Suit::Spades);
     /// assert_eq!(c.suit_enum(), Suit::Spades);
     /// ```
@@ -611,8 +647,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
-    /// use crate::core::domain::entities::card::{Card, Rank, Suit};
-    ///
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let two_clubs = Card::from_rank_suit(Rank::Two, Suit::Clubs);
     /// assert_eq!(two_clubs.index(), 0);
     ///
@@ -636,10 +671,12 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Card;
     /// let a = Card::from_string("As").unwrap();
     /// let b = Card::from_string("Ah").unwrap();
     /// assert!(a.same_rank(&b));
     /// ```
+    #[must_use] 
     pub const fn same_rank(&self, other: &Self) -> bool {
         self.rank() == other.rank()
     }
@@ -651,6 +688,7 @@ impl Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::Card;
     /// let a = Card::from_string("As").unwrap();
     /// let b = Card::from_string("Ks").unwrap();
     /// assert!(a.same_suit(&b));
@@ -679,7 +717,8 @@ impl FromStr for Card {
     /// # Examples
     ///
     /// ```
-    /// let card = "As".parse::<crate::core::domain::entities::card::Card>().unwrap();
+    /// use riverrun::core::domain::entities::card::Card;
+    /// let card = "As".parse::<Card>().unwrap();
     /// assert_eq!(card.to_string(), "As");
     /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -704,6 +743,7 @@ impl From<(Rank, Suit)> for Card {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let card: Card = (Rank::Ace, Suit::Spades).into();
     /// assert_eq!(card.to_string(), "As");
     /// ```

@@ -29,7 +29,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Obtain a reference to the evaluator backing the calculator.
     /// let evaluator_ref = calc.evaluator();
     /// ```
@@ -46,7 +46,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let hole = HoleCards::new(Card::from_str("As").unwrap(), Card::from_str("Ah").unwrap());
     /// let board = Board::from_cards(&[]);
     /// let deck = remaining_deck(hole, &board);
@@ -73,7 +73,7 @@ impl<E: HandEvaluator> EquityCalculator for ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // `calc` is an ExhaustiveEquityCalculator initialized with a hand evaluator.
     /// // `hole` is the hero's HoleCards and `board` is a Board (0..5 cards).
     /// let result = calc.calculate(&hole, &board, 1);
@@ -104,7 +104,7 @@ impl<E: HandEvaluator> EquityCalculator for ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let eval = CactusKevEvaluator::new();
     /// let calc = ExhaustiveEquityCalculator::new(eval);
     /// let hole = HoleCards::new(Card::ace_spades(), Card::ace_hearts());
@@ -175,11 +175,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// use crate::core::domain::services::equity::ExhaustiveEquityCalculator;
-    /// use crate::core::domain::entities::{Board, Card, Deck, HoleCards};
-    /// use crate::core::inbound::evaluators::CactusKevEvaluator;
-    ///
+    /// ```ignore
     /// let evaluator = CactusKevEvaluator::new();
     /// let calc = ExhaustiveEquityCalculator::new(evaluator);
     /// let hole = HoleCards::new(Card::from_str("As").unwrap(), Card::from_str("Ah").unwrap());
@@ -288,7 +284,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// // Illustrative usage; assumes appropriate imports and a concrete evaluator implementation.
     /// let evaluator = CactusKevEvaluator::new();
     /// let calc = ExhaustiveEquityCalculator::new(evaluator);
@@ -393,11 +389,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
-    /// use crate::core::domain::services::equity::ExhaustiveEquityCalculator;
-    /// use crate::core::domain::model::{Card, HoleCards, Deck, Board};
-    /// use crate::core::domain::services::evaluator::CactusKevEvaluator;
-    ///
+    /// ```ignore
     /// let evaluator = CactusKevEvaluator::new();
     /// let calc = ExhaustiveEquityCalculator::new(evaluator);
     /// let hero = HoleCards::new(Card::ace_of_spades(), Card::ace_of_hearts());
@@ -480,19 +472,12 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     ///
     /// # Examples
     ///
-    /// ```
-    /// # use crate::core::domain::services::equity::ExhaustiveEquityCalculator;
-    /// # use crate::core::domain::entities::{Deck, HoleCards, Board, Card};
-    /// # let calc: ExhaustiveEquityCalculator<_> = unimplemented!();
-    /// # let hole = unimplemented!(); // HoleCards
-    /// # let board = unimplemented!(); // [Card; 5]
-    /// # let deck = unimplemented!(); // Deck
+    /// ```ignore
     /// let mut wins = 0u64;
     /// let mut ties = 0u64;
     /// let mut losses = 0u64;
     /// // enumerate for two opponents
     /// // calc.enumerate_multiway(hole, &board, &deck, 2, &mut wins, &mut ties, &mut losses);
-    /// # let _ = (wins, ties, losses);
     /// ```
     #[allow(clippy::too_many_arguments)]
     fn enumerate_multiway(

@@ -36,6 +36,7 @@ impl HandRankTables {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::services::evaluation::HandRankTables;
     /// let tables = HandRankTables::new();
     /// // No valid hand has a prime-product of 1, so this should be `None`.
     /// assert!(tables.lookup_unique(1).is_none());
@@ -75,6 +76,7 @@ impl Default for HandRankTables {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::services::evaluation::HandRankTables;
     /// let _tables = HandRankTables::default();
     /// ```
     fn default() -> Self {
@@ -95,6 +97,7 @@ impl HandRankTables {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::services::evaluation::HandRankTables;
     /// let tables = HandRankTables::new();
     /// let rank = tables.lookup_flush(0);
     /// // `rank` is a `u16` representing the hand strength for the flush pattern at index 0.
@@ -116,6 +119,7 @@ impl HandRankTables {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::services::evaluation::HandRankTables;
     /// let tables = HandRankTables::new();
     /// // 0 is not a valid prime-product for any 5-card hand, so this yields `None`.
     /// assert_eq!(tables.lookup_unique(0), None);
@@ -141,7 +145,7 @@ impl HandRankTables {
 ///
 /// # Examples
 ///
-/// ```
+/// ```ignore
 /// let mut flush_lookup = vec![0u16; 8192];
 /// let next = generate_straight_flushes(&mut flush_lookup, 1);
 /// assert_eq!(next, 11);

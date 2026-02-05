@@ -15,10 +15,11 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::new();
     /// assert_eq!(deck.remaining(), 52);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn new() -> Self {
         let cards = Rank::all()
             .flat_map(|rank| Suit::all().map(move |suit| Card::new(rank, suit)))
@@ -31,11 +32,12 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::empty();
     /// assert!(deck.is_empty());
     /// assert_eq!(deck.remaining(), 0);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn empty() -> Self {
         Self { cards: Vec::new() }
     }
@@ -45,12 +47,14 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
+    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
     /// let cards = vec![Card::new(Rank::Ace, Suit::Spades), Card::new(Rank::King, Suit::Hearts)];
     /// let deck = Deck::from_cards(cards.clone());
     /// assert_eq!(deck.remaining(), 2);
     /// assert_eq!(deck.to_vec(), cards);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn from_cards(cards: Vec<Card>) -> Self {
         Self { cards }
     }
@@ -72,10 +76,12 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
+    /// use riverrun::core::domain::entities::card::Card;
     /// let deck = Deck::excluding(&[] as &[Card]);
     /// assert_eq!(deck.remaining(), 52);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn excluding(dead_cards: &[Card]) -> Self {
         let cards: Vec<Card> = Card::all_cards()
             .filter(|c| !dead_cards.contains(c))
@@ -95,10 +101,11 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::empty();
     /// assert_eq!(deck.remaining(), 0);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn remaining(&self) -> usize {
         self.cards.len()
     }
@@ -112,13 +119,14 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let empty = Deck::empty();
     /// assert!(empty.is_empty());
     ///
     /// let full = Deck::new();
     /// assert!(!full.is_empty());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn is_empty(&self) -> bool {
         self.cards.is_empty()
     }
@@ -132,11 +140,12 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::new();
     /// let cards = deck.cards();
     /// assert_eq!(cards.len(), deck.remaining());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn cards(&self) -> &[Card] {
         &self.cards
     }
@@ -148,11 +157,12 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::new();
     /// let cards = deck.to_vec();
     /// assert_eq!(cards.len(), deck.remaining());
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn to_vec(&self) -> Vec<Card> {
         self.cards.clone()
     }
@@ -164,13 +174,14 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let deck = Deck::new();
     /// let top = deck.peek();
     /// assert!(top.is_some());
     /// // peek does not remove the card
     /// assert_eq!(deck.remaining(), 52);
     /// ```
-    #[must_use] 
+    #[must_use]
     pub fn peek(&self) -> Option<&Card> {
         self.cards.last()
     }
@@ -191,6 +202,7 @@ impl Deck {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let mut deck = Deck::empty();
     /// assert!(deck.is_empty());
     /// deck.reset();
@@ -232,9 +244,15 @@ impl Deck {
     /// `Some(Vec<[Card; 2]>)` containing one 2-card hand per player when the deck has enough cards,
     /// `None` if there are not enough cards to deal to all players.
     ///
+    /// # Panics
+    ///
+    /// This function does not panic. The internal `unwrap()` calls are safe because the function
+    /// returns `None` early if there are not enough cards in the deck.
+    ///
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::entities::deck::Deck;
     /// let mut deck = Deck::new();
     /// let hands = deck.deal_hole_cards(2).unwrap();
     /// assert_eq!(hands.len(), 2);

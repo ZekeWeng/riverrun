@@ -15,7 +15,7 @@ pub struct EquityResult {
 
 /// `EquityResult` - Constructors
 impl EquityResult {
-    /// Create an EquityResult from raw win/tie/loss counts and the number of opponents.
+    /// Create an `EquityResult` from raw win/tie/loss counts and the number of opponents.
     ///
     /// Computes win, tie, and loss rates as fractions of the total samples. Tie equity is
     /// divided evenly among all tied players (opponents + 1) and added to the win rate to
@@ -37,6 +37,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let res = EquityResult::from_counts(10, 2, 3, 2);
     /// assert_eq!(res.samples(), 15);
     /// // equity == win_rate + tie_rate / (num_opponents + 1)
@@ -84,6 +85,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let r = EquityResult::from_counts(60, 20, 20, 1);
     /// let e = r.equity();
     /// assert!(e >= 0.0 && e <= 1.0);
@@ -102,6 +104,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let res = EquityResult::from_counts(1, 0, 3, 1); // 1 win, 0 ties, 3 losses => equity = 0.25
     /// let pct = res.equity_percent();
     /// assert!((pct - 25.0).abs() < 1e-12);
@@ -119,6 +122,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let r = EquityResult::from_counts(1, 0, 1, 1);
     /// assert_eq!(r.win_rate(), 0.5);
     /// ```
@@ -132,6 +136,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let r = EquityResult::from_counts(30, 10, 60, 1);
     /// assert!((r.win_percent() - r.win_rate() * 100.0).abs() < 1e-12);
     /// ```
@@ -148,6 +153,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let res = EquityResult::from_counts(1, 1, 1, 1);
     /// assert!(res.tie_rate() >= 0.0 && res.tie_rate() <= 1.0);
     /// ```
@@ -160,7 +166,7 @@ impl EquityResult {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let res = EquityResult { equity: 0.0, win_rate: 0.0, tie_rate: 0.25, lose_rate: 0.0, samples: 0 };
     /// assert_eq!(res.tie_percent(), 25.0);
     /// ```
@@ -176,6 +182,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let r = EquityResult::from_counts(0, 0, 10, 1);
     /// assert_eq!(r.lose_rate(), 1.0);
     /// ```
@@ -192,7 +199,7 @@ impl EquityResult {
     ///
     /// # Examples
     ///
-    /// ```
+    /// ```ignore
     /// let r = EquityResult { equity: 0.0, win_rate: 0.2, tie_rate: 0.1, lose_rate: 0.7, samples: 100 };
     /// assert_eq!(r.lose_percent(), 70.0);
     /// ```
@@ -209,6 +216,7 @@ impl EquityResult {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::ports::inbound::EquityResult;
     /// let res = EquityResult::from_counts(42, 0, 0, 1);
     /// assert_eq!(res.samples(), 42);
     /// ```

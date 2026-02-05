@@ -32,6 +32,7 @@ pub const FIVE_FROM_SEVEN: [[usize; 5]; 21] = [
 /// # Examples
 ///
 /// ```
+/// use riverrun::core::domain::services::utils::combinatorics::binomial;
 /// assert_eq!(binomial(5, 2), 10);
 /// assert_eq!(binomial(6, 3), 20);
 /// assert_eq!(binomial(4, 5), 0);
@@ -60,6 +61,7 @@ pub fn binomial(n: usize, k: usize) -> usize {
 /// # Examples
 ///
 /// ```
+/// use riverrun::core::domain::services::utils::combinatorics::combinations;
 /// let combos = combinations(4, 2);
 /// assert_eq!(combos.len(), 6);
 /// assert!(combos.contains(&vec![0, 1]));
@@ -110,6 +112,7 @@ pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
 /// # Examples
 ///
 /// ```
+/// use riverrun::core::domain::services::utils::combinatorics::is_straight_pattern;
 /// // 8-9-10-J-Q (consecutive)
 /// assert!(is_straight_pattern(&[6, 7, 8, 9, 10]));
 /// // Wheel: A-2-3-4-5

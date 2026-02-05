@@ -18,11 +18,12 @@ pub struct CactusKevEvaluator {
 
 /// `CactusKevEvaluator` - Constructors
 impl CactusKevEvaluator {
-    /// Constructs a CactusKevEvaluator initialized with the default precomputed hand-rank tables.
+    /// Constructs a `CactusKevEvaluator` initialized with the default precomputed hand-rank tables.
     ///
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::services::evaluation::CactusKevEvaluator;
     /// let _eval = CactusKevEvaluator::new();
     /// ```
     #[must_use] 
@@ -39,6 +40,7 @@ impl CactusKevEvaluator {
     /// # Examples
     ///
     /// ```
+    /// use riverrun::core::domain::services::evaluation::{CactusKevEvaluator, HandRankTables};
     /// let tables = HandRankTables::new();
     /// let evaluator = CactusKevEvaluator::with_tables(tables);
     /// ```
@@ -57,9 +59,12 @@ impl CactusKevEvaluator {
     /// # Examples
     ///
     /// ```
-    /// let tables = CactusKevEvaluator::new().tables();
+    /// use riverrun::core::domain::services::evaluation::CactusKevEvaluator;
+    /// let evaluator = CactusKevEvaluator::new();
+    /// let tables = evaluator.tables();
     /// let _ = tables;
     /// ``` 
+    #[must_use] 
     pub const fn tables(&self) -> &HandRankTables {
         &self.tables
     }

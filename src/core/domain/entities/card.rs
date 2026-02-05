@@ -38,12 +38,13 @@ pub enum Suit {
 /// Suit - Constructors
 impl Suit {
     /// Create a suit from a u8 value (0-3).
-    pub fn from_u8(value: u8) -> Option<Self> {
+    #[must_use] 
+    pub const fn from_u8(value: u8) -> Option<Self> {
         match value {
-            0 => Some(Suit::Clubs),
-            1 => Some(Suit::Diamonds),
-            2 => Some(Suit::Hearts),
-            3 => Some(Suit::Spades),
+            0 => Some(Self::Clubs),
+            1 => Some(Self::Diamonds),
+            2 => Some(Self::Hearts),
+            3 => Some(Self::Spades),
             _ => None,
         }
     }
@@ -52,18 +53,20 @@ impl Suit {
 /// Suit - Accessors
 impl Suit {
     /// Get the character representation.
-    pub fn as_char(self) -> char {
+    #[must_use] 
+    pub const fn as_char(self) -> char {
         SUIT_CHARS[self as usize]
     }
 
     /// Get the suit bit mask.
-    pub fn bit_mask(self) -> u32 {
+    #[must_use] 
+    pub const fn bit_mask(self) -> u32 {
         1u32 << (self as u8 + 12)
     }
 
     /// Iterate over all suits.
-    pub fn all() -> impl Iterator<Item = Suit> {
-        [Suit::Clubs, Suit::Diamonds, Suit::Hearts, Suit::Spades].into_iter()
+    pub fn all() -> impl Iterator<Item = Self> {
+        [Self::Clubs, Self::Diamonds, Self::Hearts, Self::Spades].into_iter()
     }
 }
 
@@ -81,10 +84,10 @@ impl FromStr for Suit {
             return Err(ParseCardError::InvalidSuit);
         }
         match s.chars().next().unwrap() {
-            'c' | 'C' => Ok(Suit::Clubs),
-            'd' | 'D' => Ok(Suit::Diamonds),
-            'h' | 'H' => Ok(Suit::Hearts),
-            's' | 'S' => Ok(Suit::Spades),
+            'c' | 'C' => Ok(Self::Clubs),
+            'd' | 'D' => Ok(Self::Diamonds),
+            'h' | 'H' => Ok(Self::Hearts),
+            's' | 'S' => Ok(Self::Spades),
             _ => Err(ParseCardError::InvalidSuit),
         }
     }
@@ -112,21 +115,22 @@ pub enum Rank {
 /// Rank - Constructors
 impl Rank {
     /// Create a rank from a u8 value (0-12).
-    pub fn from_u8(value: u8) -> Option<Self> {
+    #[must_use] 
+    pub const fn from_u8(value: u8) -> Option<Self> {
         match value {
-            0 => Some(Rank::Two),
-            1 => Some(Rank::Three),
-            2 => Some(Rank::Four),
-            3 => Some(Rank::Five),
-            4 => Some(Rank::Six),
-            5 => Some(Rank::Seven),
-            6 => Some(Rank::Eight),
-            7 => Some(Rank::Nine),
-            8 => Some(Rank::Ten),
-            9 => Some(Rank::Jack),
-            10 => Some(Rank::Queen),
-            11 => Some(Rank::King),
-            12 => Some(Rank::Ace),
+            0 => Some(Self::Two),
+            1 => Some(Self::Three),
+            2 => Some(Self::Four),
+            3 => Some(Self::Five),
+            4 => Some(Self::Six),
+            5 => Some(Self::Seven),
+            6 => Some(Self::Eight),
+            7 => Some(Self::Nine),
+            8 => Some(Self::Ten),
+            9 => Some(Self::Jack),
+            10 => Some(Self::Queen),
+            11 => Some(Self::King),
+            12 => Some(Self::Ace),
             _ => None,
         }
     }
@@ -135,23 +139,29 @@ impl Rank {
 /// Rank - Accessors
 impl Rank {
     /// Get the character representation.
-    pub fn as_char(self) -> char {
+    #[must_use] 
+    pub const fn as_char(self) -> char {
         RANK_CHARS[self as usize]
     }
 
     /// Get the prime number for this rank.
-    pub fn prime(self) -> u32 {
+    #[must_use] 
+    pub const fn prime(self) -> u32 {
         PRIMES[self as usize]
     }
 
     /// Get the rank bit mask (for flush detection).
-    pub fn bit_mask(self) -> u32 {
+    #[must_use] 
+    pub const fn bit_mask(self) -> u32 {
         1u32 << (self as u8 + 16)
     }
 
     /// Iterate over all ranks (2 to A).
-    pub fn all() -> impl Iterator<Item = Rank> {
-        (0..13).map(|i| Rank::from_u8(i).unwrap())
+    ///
+    /// # Panics
+    /// This function will not panic as it only iterates over valid rank values (0-12).
+    pub fn all() -> impl Iterator<Item = Self> {
+        (0..13).map(|i| Self::from_u8(i).unwrap())
     }
 }
 
@@ -169,19 +179,19 @@ impl FromStr for Rank {
             return Err(ParseCardError::InvalidRank);
         }
         match s.chars().next().unwrap() {
-            '2' => Ok(Rank::Two),
-            '3' => Ok(Rank::Three),
-            '4' => Ok(Rank::Four),
-            '5' => Ok(Rank::Five),
-            '6' => Ok(Rank::Six),
-            '7' => Ok(Rank::Seven),
-            '8' => Ok(Rank::Eight),
-            '9' => Ok(Rank::Nine),
-            'T' | 't' => Ok(Rank::Ten),
-            'J' | 'j' => Ok(Rank::Jack),
-            'Q' | 'q' => Ok(Rank::Queen),
-            'K' | 'k' => Ok(Rank::King),
-            'A' | 'a' => Ok(Rank::Ace),
+            '2' => Ok(Self::Two),
+            '3' => Ok(Self::Three),
+            '4' => Ok(Self::Four),
+            '5' => Ok(Self::Five),
+            '6' => Ok(Self::Six),
+            '7' => Ok(Self::Seven),
+            '8' => Ok(Self::Eight),
+            '9' => Ok(Self::Nine),
+            'T' | 't' => Ok(Self::Ten),
+            'J' | 'j' => Ok(Self::Jack),
+            'Q' | 'q' => Ok(Self::Queen),
+            'K' | 'k' => Ok(Self::King),
+            'A' | 'a' => Ok(Self::Ace),
             _ => Err(ParseCardError::InvalidRank),
         }
     }
@@ -198,9 +208,9 @@ pub enum ParseCardError {
 impl fmt::Display for ParseCardError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ParseCardError::InvalidLength => write!(f, "card string must be exactly 2 characters"),
-            ParseCardError::InvalidRank => write!(f, "invalid rank character"),
-            ParseCardError::InvalidSuit => write!(f, "invalid suit character"),
+            Self::InvalidLength => write!(f, "card string must be exactly 2 characters"),
+            Self::InvalidRank => write!(f, "invalid rank character"),
+            Self::InvalidSuit => write!(f, "invalid suit character"),
         }
     }
 }
@@ -214,33 +224,46 @@ pub struct Card(pub(crate) u32);
 /// Card - Constructors
 impl Card {
     /// Create a new card from Rank and Suit enums.
-    pub fn new(rank: Rank, suit: Suit) -> Self {
-        let prime = rank.prime();
+    #[must_use]
+    pub const fn new(rank: Rank, suit: Suit) -> Self {
+        let prime = PRIMES[rank as usize];
         let rank_nibble = (rank as u32) << 8;
-        let suit_bit = suit.bit_mask();
-        let rank_bit = rank.bit_mask();
+        let suit_bit = 1u32 << (suit as u8 + 12);
+        let rank_bit = 1u32 << (rank as u8 + 16);
 
-        Card(prime | rank_nibble | suit_bit | rank_bit)
+        Self(prime | rank_nibble | suit_bit | rank_bit)
     }
 
     /// Create a new card from raw rank and suit values.
-    pub fn from_raw(rank: u8, suit: u8) -> Self {
-        let rank = Rank::from_u8(rank).expect("Rank must be 0-12");
-        let suit = Suit::from_u8(suit).expect("Suit must be 0-3");
+    ///
+    /// # Panics
+    /// Panics if `rank` is not in 0-12 or `suit` is not in 0-3.
+    #[must_use]
+    pub const fn from_raw(rank: u8, suit: u8) -> Self {
+        let Some(rank) = Rank::from_u8(rank) else {
+            panic!("Rank must be 0-12")
+        };
+        let Some(suit) = Suit::from_u8(suit) else {
+            panic!("Suit must be 0-3")
+        };
         Self::new(rank, suit)
     }
 
-    /// Alias for new().
-    pub fn from_rank_suit(rank: Rank, suit: Suit) -> Self {
+    /// Alias for `new()`.
+    #[must_use]
+    pub const fn from_rank_suit(rank: Rank, suit: Suit) -> Self {
         Self::new(rank, suit)
     }
 
     /// Parse a card from a 2-character string (e.g., "As", "Td", "2c").
+    #[must_use] 
     pub fn from_string(s: &str) -> Option<Self> {
         s.parse().ok()
     }
 
     /// Create a card from its index (0-51).
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub fn from_index(index: usize) -> Option<Self> {
         if index >= 52 {
             return None;
@@ -251,7 +274,10 @@ impl Card {
     }
 
     /// Generate all 52 cards in a standard deck.
-    pub fn all_cards() -> impl Iterator<Item = Card> {
+    ///
+    /// # Panics
+    /// This function will not panic as it only iterates over valid card indices (0-51).
+    pub fn all_cards() -> impl Iterator<Item = Self> {
         (0..52).map(|i| Self::from_index(i).unwrap())
     }
 }
@@ -260,55 +286,77 @@ impl Card {
 impl Card {
     /// Get the raw 32-bit encoding.
     #[inline]
-    pub fn raw(&self) -> u32 {
+    #[must_use] 
+    pub const fn raw(&self) -> u32 {
         self.0
     }
 
     /// Get the prime number component.
     #[inline]
-    pub fn prime(&self) -> u32 {
+    #[must_use] 
+    pub const fn prime(&self) -> u32 {
         self.0 & 0xFF
     }
 
     /// Get the rank as a u8 (0-12).
     #[inline]
-    pub fn rank(&self) -> u8 {
+    #[must_use] 
+    pub const fn rank(&self) -> u8 {
         ((self.0 >> 8) & 0xF) as u8
     }
 
     /// Get the rank as an enum.
+    ///
+    /// # Panics
+    /// This function will not panic for valid cards as rank is always 0-12.
     #[inline]
-    pub fn rank_enum(&self) -> Rank {
-        Rank::from_u8(self.rank()).unwrap()
+    #[must_use]
+    pub const fn rank_enum(&self) -> Rank {
+        match Rank::from_u8(self.rank()) {
+            Some(r) => r,
+            None => panic!("Invalid rank"),
+        }
     }
 
     /// Get the suit bits (one-hot encoded, bits 12-15).
     #[inline]
-    pub fn suit_bits(&self) -> u32 {
+    #[must_use] 
+    pub const fn suit_bits(&self) -> u32 {
         (self.0 >> 12) & 0xF
     }
 
     /// Get the rank bits (one-hot encoded, bits 16-28).
     #[inline]
-    pub fn rank_bits(&self) -> u32 {
+    #[must_use] 
+    pub const fn rank_bits(&self) -> u32 {
         self.0 >> 16
     }
 
     /// Get the suit as a u8 (0-3).
     #[inline]
-    pub fn suit(&self) -> u8 {
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    pub const fn suit(&self) -> u8 {
         self.suit_bits().trailing_zeros() as u8
     }
 
     /// Get the suit as an enum.
+    ///
+    /// # Panics
+    /// This function will not panic for valid cards as suit is always 0-3.
     #[inline]
-    pub fn suit_enum(&self) -> Suit {
-        Suit::from_u8(self.suit()).unwrap()
+    #[must_use]
+    pub const fn suit_enum(&self) -> Suit {
+        match Suit::from_u8(self.suit()) {
+            Some(s) => s,
+            None => panic!("Invalid suit"),
+        }
     }
 
     /// Get the unique index of this card (0-51).
     #[inline]
-    pub fn index(&self) -> usize {
+    #[must_use]
+    pub const fn index(&self) -> usize {
         (self.rank() as usize) * 4 + (self.suit() as usize)
     }
 }
@@ -317,13 +365,15 @@ impl Card {
 impl Card {
     /// Check if this card has the same rank as another.
     #[inline]
-    pub fn same_rank(&self, other: &Card) -> bool {
+    #[must_use]
+    pub const fn same_rank(&self, other: &Self) -> bool {
         self.rank() == other.rank()
     }
 
     /// Check if this card has the same suit as another.
     #[inline]
-    pub fn same_suit(&self, other: &Card) -> bool {
+    #[must_use]
+    pub const fn same_suit(&self, other: &Self) -> bool {
         self.suit_bits() == other.suit_bits()
     }
 }
@@ -349,13 +399,13 @@ impl FromStr for Card {
         let rank: Rank = rank_char.to_string().parse()?;
         let suit: Suit = suit_char.to_string().parse()?;
 
-        Ok(Card::new(rank, suit))
+        Ok(Self::new(rank, suit))
     }
 }
 
 impl From<(Rank, Suit)> for Card {
     fn from((rank, suit): (Rank, Suit)) -> Self {
-        Card::from_rank_suit(rank, suit)
+        Self::from_rank_suit(rank, suit)
     }
 }
 

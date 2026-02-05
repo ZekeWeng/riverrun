@@ -17,15 +17,16 @@ pub const WORST_RANK: u16 = 7462;
 ///
 /// Two lookup structures:
 /// - `flush_lookup`: 8192-entry table indexed by rank bits for flush hands
-/// - `unique5`: Sorted (prime_product, rank) pairs for non-flush hands
+/// - `unique5`: Sorted (`prime_product`, rank) pairs for non-flush hands
 pub struct HandRankTables {
     pub flush_lookup: Vec<u16>,
     pub unique5: Vec<(u32, u16)>,
 }
 
-/// HandRankTables - Constructors
+/// `HandRankTables` - Constructors
 impl HandRankTables {
     /// Generate all lookup tables.
+    #[must_use] 
     pub fn new() -> Self {
         let mut flush_lookup = vec![WORST_RANK; 8192];
         let mut unique5_map: HashMap<u32, u16> = HashMap::new();
@@ -47,7 +48,7 @@ impl HandRankTables {
         let mut unique5: Vec<(u32, u16)> = unique5_map.into_iter().collect();
         unique5.sort_by_key(|(product, _)| *product);
 
-        HandRankTables {
+        Self {
             flush_lookup,
             unique5,
         }
@@ -60,14 +61,16 @@ impl Default for HandRankTables {
     }
 }
 
-/// HandRankTables - Accessors
+/// `HandRankTables` - Accessors
 impl HandRankTables {
     /// Look up a flush hand rank by rank bits.
+    #[must_use] 
     pub fn lookup_flush(&self, rank_bits: u32) -> u16 {
         self.flush_lookup[rank_bits as usize]
     }
 
     /// Look up a non-flush hand rank by prime product.
+    #[must_use] 
     pub fn lookup_unique(&self, prime_product: u32) -> Option<u16> {
         self.unique5
             .binary_search_by_key(&prime_product, |&(p, _)| p)
@@ -79,16 +82,16 @@ impl HandRankTables {
 // Straight flush bit patterns (A-high to wheel)
 fn generate_straight_flushes(flush_lookup: &mut [u16], mut rank: u16) -> u16 {
     let patterns = [
-        0b1111100000000u32, // A-K-Q-J-T
-        0b0111110000000,    // K-Q-J-T-9
-        0b0011111000000,    // Q-J-T-9-8
-        0b0001111100000,    // J-T-9-8-7
-        0b0000111110000,    // T-9-8-7-6
-        0b0000011111000,    // 9-8-7-6-5
-        0b0000001111100,    // 8-7-6-5-4
-        0b0000000111110,    // 7-6-5-4-3
-        0b0000000011111,    // 6-5-4-3-2
-        0b1000000001111,    // 5-4-3-2-A
+        0b1_1111_0000_0000_u32, // A-K-Q-J-T
+        0b0_1111_1000_0000,     // K-Q-J-T-9
+        0b0_0111_1100_0000,     // Q-J-T-9-8
+        0b0_0011_1110_0000,     // J-T-9-8-7
+        0b0_0001_1111_0000,     // T-9-8-7-6
+        0b0_0000_1111_1000,     // 9-8-7-6-5
+        0b0_0000_0111_1100,     // 8-7-6-5-4
+        0b0_0000_0011_1110,     // 7-6-5-4-3
+        0b0_0000_0001_1111,     // 6-5-4-3-2
+        0b1_0000_0000_1111,     // 5-4-3-2-A
     ];
 
     for pattern in patterns {

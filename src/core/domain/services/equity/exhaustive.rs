@@ -15,26 +15,26 @@ pub struct ExhaustiveEquityCalculator<E: HandEvaluator> {
     evaluator: E,
 }
 
-/// ExhaustiveEquityCalculator - Constructors
+/// `ExhaustiveEquityCalculator` - Constructors
 impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     /// Create a new exhaustive equity calculator.
-    pub fn new(evaluator: E) -> Self {
-        ExhaustiveEquityCalculator { evaluator }
+    pub const fn new(evaluator: E) -> Self {
+        Self { evaluator }
     }
 }
 
-/// ExhaustiveEquityCalculator - Accessors
+/// `ExhaustiveEquityCalculator` - Accessors
 impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     /// Get a reference to the underlying evaluator.
-    pub fn evaluator(&self) -> &E {
+    pub const fn evaluator(&self) -> &E {
         &self.evaluator
     }
 }
 
-/// ExhaustiveEquityCalculator - Operations
+/// `ExhaustiveEquityCalculator` - Operations
 impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     /// Create a deck with dead cards removed.
-    fn remaining_deck(&self, hole_cards: &HoleCards, board: &Board) -> Deck {
+    fn remaining_deck(hole_cards: HoleCards, board: &Board) -> Deck {
         let mut dead_cards = vec![hole_cards.first(), hole_cards.second()];
         dead_cards.extend_from_slice(board.cards());
         Deck::excluding(&dead_cards)
@@ -48,13 +48,13 @@ impl<E: HandEvaluator> EquityCalculator for ExhaustiveEquityCalculator<E> {
         board: &Board,
         num_opponents: usize,
     ) -> EquityResult {
-        let remaining = self.remaining_deck(hole_cards, board);
+        let remaining = Self::remaining_deck(*hole_cards, board);
 
         match board.len() {
-            5 => self.calculate_river(hole_cards, board, &remaining, num_opponents),
-            4 => self.calculate_turn(hole_cards, board, &remaining, num_opponents),
-            3 => self.calculate_flop(hole_cards, board, &remaining, num_opponents),
-            0 => self.calculate_preflop(hole_cards, &remaining, num_opponents),
+            5 => self.calculate_river(*hole_cards, board, &remaining, num_opponents),
+            4 => self.calculate_turn(*hole_cards, board, &remaining, num_opponents),
+            3 => self.calculate_flop(*hole_cards, board, &remaining, num_opponents),
+            0 => self.calculate_preflop(*hole_cards, &remaining, num_opponents),
             _ => EquityResult::from_counts(0, 0, 0, num_opponents),
         }
     }
@@ -71,12 +71,12 @@ impl<E: HandEvaluator> EquityCalculator for ExhaustiveEquityCalculator<E> {
     }
 }
 
-/// ExhaustiveEquityCalculator - Calculation Methods
+/// `ExhaustiveEquityCalculator` - Calculation Methods
 impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     /// Calculate equity on the river using exhaustive enumeration.
     fn calculate_river(
         &self,
-        hole_cards: &HoleCards,
+        hole_cards: HoleCards,
         board: &Board,
         remaining: &Deck,
         num_opponents: usize,
@@ -98,12 +98,10 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
                     let opp_cards = opp_hole.combine_with_board(board_array);
                     let opp_strength = self.evaluator.evaluate_7cards_fast(&opp_cards);
 
-                    if hero_strength < opp_strength {
-                        wins += 1;
-                    } else if hero_strength == opp_strength {
-                        ties += 1;
-                    } else {
-                        losses += 1;
+                    match hero_strength.cmp(&opp_strength) {
+                        std::cmp::Ordering::Less => wins += 1,
+                        std::cmp::Ordering::Equal => ties += 1,
+                        std::cmp::Ordering::Greater => losses += 1,
                     }
                 }
             }
@@ -118,7 +116,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     /// Calculate equity on the turn using exhaustive enumeration.
     fn calculate_turn(
         &self,
-        hole_cards: &HoleCards,
+        hole_cards: HoleCards,
         board: &Board,
         remaining: &Deck,
         num_opponents: usize,
@@ -155,12 +153,10 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
                         let opp_cards = opp_hole.combine_with_board(full_board);
                         let opp_strength = self.evaluator.evaluate_7cards_fast(&opp_cards);
 
-                        if hero_strength < opp_strength {
-                            wins += 1;
-                        } else if hero_strength == opp_strength {
-                            ties += 1;
-                        } else {
-                            losses += 1;
+                        match hero_strength.cmp(&opp_strength) {
+                            std::cmp::Ordering::Less => wins += 1,
+                            std::cmp::Ordering::Equal => ties += 1,
+                            std::cmp::Ordering::Greater => losses += 1,
                         }
                     }
                 }
@@ -193,7 +189,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     /// Calculate equity on the flop using exhaustive enumeration.
     fn calculate_flop(
         &self,
-        hole_cards: &HoleCards,
+        hole_cards: HoleCards,
         board: &Board,
         remaining: &Deck,
         num_opponents: usize,
@@ -231,12 +227,10 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
                             let opp_cards = opp_hole.combine_with_board(full_board);
                             let opp_strength = self.evaluator.evaluate_7cards_fast(&opp_cards);
 
-                            if hero_strength < opp_strength {
-                                wins += 1;
-                            } else if hero_strength == opp_strength {
-                                ties += 1;
-                            } else {
-                                losses += 1;
+                            match hero_strength.cmp(&opp_strength) {
+                                std::cmp::Ordering::Less => wins += 1,
+                                std::cmp::Ordering::Equal => ties += 1,
+                                std::cmp::Ordering::Greater => losses += 1,
                             }
                         }
                     }
@@ -272,7 +266,7 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     /// Calculate preflop equity using exhaustive enumeration (very slow!).
     fn calculate_preflop(
         &self,
-        hole_cards: &HoleCards,
+        hole_cards: HoleCards,
         remaining: &Deck,
         num_opponents: usize,
     ) -> EquityResult {
@@ -306,12 +300,10 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
                                         let opp_cards = opp_hole.combine_with_board(full_board);
                                         let opp_strength = self.evaluator.evaluate_7cards_fast(&opp_cards);
 
-                                        if hero_strength < opp_strength {
-                                            wins += 1;
-                                        } else if hero_strength == opp_strength {
-                                            ties += 1;
-                                        } else {
-                                            losses += 1;
+                                        match hero_strength.cmp(&opp_strength) {
+                                            std::cmp::Ordering::Less => wins += 1,
+                                            std::cmp::Ordering::Equal => ties += 1,
+                                            std::cmp::Ordering::Greater => losses += 1,
                                         }
                                     }
                                 }
@@ -330,9 +322,10 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
     }
 
     /// Enumerate all multiway opponent combinations for a complete board.
+    #[allow(clippy::too_many_arguments)]
     fn enumerate_multiway(
         &self,
-        hole_cards: &HoleCards,
+        hole_cards: HoleCards,
         board: &[Card; 5],
         remaining: &Deck,
         num_opponents: usize,
@@ -371,12 +364,10 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
 
                                 let best_opp = s1.min(s2);
 
-                                if hero_strength < best_opp {
-                                    *wins += 1;
-                                } else if hero_strength == best_opp {
-                                    *ties += 1;
-                                } else {
-                                    *losses += 1;
+                                match hero_strength.cmp(&best_opp) {
+                                    std::cmp::Ordering::Less => *wins += 1,
+                                    std::cmp::Ordering::Equal => *ties += 1,
+                                    std::cmp::Ordering::Greater => *losses += 1,
                                 }
                             }
                         }
@@ -414,12 +405,10 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
 
                                         let best_opp = s1.min(s2).min(s3);
 
-                                        if hero_strength < best_opp {
-                                            *wins += 1;
-                                        } else if hero_strength == best_opp {
-                                            *ties += 1;
-                                        } else {
-                                            *losses += 1;
+                                        match hero_strength.cmp(&best_opp) {
+                                            std::cmp::Ordering::Less => *wins += 1,
+                                            std::cmp::Ordering::Equal => *ties += 1,
+                                            std::cmp::Ordering::Greater => *losses += 1,
                                         }
                                     }
                                 }

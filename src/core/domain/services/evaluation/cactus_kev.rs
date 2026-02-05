@@ -16,25 +16,28 @@ pub struct CactusKevEvaluator {
     tables: HandRankTables,
 }
 
-/// CactusKevEvaluator - Constructors
+/// `CactusKevEvaluator` - Constructors
 impl CactusKevEvaluator {
     /// Create a new evaluator with precomputed lookup tables.
+    #[must_use] 
     pub fn new() -> Self {
-        CactusKevEvaluator {
+        Self {
             tables: HandRankTables::new(),
         }
     }
 
     /// Create an evaluator with pre-existing lookup tables.
-    pub fn with_tables(tables: HandRankTables) -> Self {
-        CactusKevEvaluator { tables }
+    #[must_use] 
+    pub const fn with_tables(tables: HandRankTables) -> Self {
+        Self { tables }
     }
 }
 
-/// CactusKevEvaluator - Accessors
+/// `CactusKevEvaluator` - Accessors
 impl CactusKevEvaluator {
     /// Get a reference to the underlying lookup tables.
-    pub fn tables(&self) -> &HandRankTables {
+    #[must_use] 
+    pub const fn tables(&self) -> &HandRankTables {
         &self.tables
     }
 }
@@ -100,7 +103,7 @@ impl HandEvaluator for CactusKevEvaluator {
 
         self.tables
             .lookup_unique(prime_product)
-            .unwrap_or_else(|| panic!("Invalid hand with prime product: {}", prime_product))
+            .unwrap_or_else(|| panic!("Invalid hand with prime product: {prime_product}"))
     }
 
     fn evaluate_7cards_fast(&self, cards: &[Card; 7]) -> u16 {

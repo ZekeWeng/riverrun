@@ -25,7 +25,14 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
 
 /// `ExhaustiveEquityCalculator` - Accessors
 impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
-    /// Get a reference to the underlying evaluator.
+    /// Access the underlying hand evaluator.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // Obtain a reference to the evaluator backing the calculator.
+    /// let evaluator_ref = calc.evaluator();
+    /// ```
     pub const fn evaluator(&self) -> &E {
         &self.evaluator
     }
@@ -33,7 +40,19 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
 
 /// `ExhaustiveEquityCalculator` - Operations
 impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
-    /// Create a deck with dead cards removed.
+    /// Builds a deck excluding the given hole cards and board cards.
+    ///
+    /// The returned `Deck` contains all cards except the two `hole_cards` and any cards present on `board`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let hole = HoleCards::new(Card::from_str("As").unwrap(), Card::from_str("Ah").unwrap());
+    /// let board = Board::from_cards(&[]);
+    /// let deck = remaining_deck(hole, &board);
+    /// // 52 total cards minus 2 hole cards
+    /// assert_eq!(deck.count(), 50);
+    /// ```
     fn remaining_deck(hole_cards: HoleCards, board: &Board) -> Deck {
         let mut dead_cards = vec![hole_cards.first(), hole_cards.second()];
         dead_cards.extend_from_slice(board.cards());
@@ -42,6 +61,23 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
 }
 
 impl<E: HandEvaluator> EquityCalculator for ExhaustiveEquityCalculator<E> {
+    /// Selects and runs the appropriate exhaustive equity calculation for the given board stage.
+    ///
+    /// The function builds the remaining deck from the hero's hole cards and the board, then dispatches
+    /// to the river/turn/flop/preflop calculation implementation depending on how many board cards
+    /// are present. If the board length is an unsupported intermediate size, returns zeroed counts.
+    ///
+    /// # Returns
+    ///
+    /// An `EquityResult` containing aggregated win/tie/loss counts for the provided `num_opponents`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // `calc` is an ExhaustiveEquityCalculator initialized with a hand evaluator.
+    /// // `hole` is the hero's HoleCards and `board` is a Board (0..5 cards).
+    /// let result = calc.calculate(&hole, &board, 1);
+    /// ```
     fn calculate(
         &self,
         hole_cards: &HoleCards,
@@ -59,6 +95,23 @@ impl<E: HandEvaluator> EquityCalculator for ExhaustiveEquityCalculator<E> {
         }
     }
 
+    /// Calculates exact equity using full enumeration, ignoring any requested sample count.
+    ///
+    /// The `_samples` argument is ignored; this method performs an exhaustive calculation and returns the exact
+    /// equity for the provided hole cards, board, and number of opponents.
+    ///
+    /// Returns the computed `EquityResult` for the given inputs.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let eval = CactusKevEvaluator::new();
+    /// let calc = ExhaustiveEquityCalculator::new(eval);
+    /// let hole = HoleCards::new(Card::ace_spades(), Card::ace_hearts());
+    /// let board = Board::from_cards(&[]);
+    /// let result = calc.calculate_sampled(&hole, &board, 1, 100);
+    /// assert!(result.wins + result.ties + result.losses > 0);
+    /// ```
     fn calculate_sampled(
         &self,
         hole_cards: &HoleCards,
@@ -113,7 +166,34 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
         EquityResult::from_counts(wins, ties, losses, num_opponents)
     }
 
-    /// Calculate equity on the turn using exhaustive enumeration.
+    /// Computes exact equity on the turn by enumerating all possible river cards and opponent hole cards.
+    ///
+    /// Returns an `EquityResult` containing counts of wins, ties, and losses for the given number of opponents
+    /// after considering every legal river runout. For single-opponent scenarios this enumerates opponent hole
+    /// combinations directly; for multiway scenarios it enumerates each river and delegates to the multiway
+    /// enumerator.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use crate::core::domain::services::equity::ExhaustiveEquityCalculator;
+    /// use crate::core::domain::entities::{Board, Card, Deck, HoleCards};
+    /// use crate::core::inbound::evaluators::CactusKevEvaluator;
+    ///
+    /// let evaluator = CactusKevEvaluator::new();
+    /// let calc = ExhaustiveEquityCalculator::new(evaluator);
+    /// let hole = HoleCards::new(Card::from_str("As").unwrap(), Card::from_str("Ah").unwrap());
+    /// let board = Board::from_cards([
+    ///     Card::from_str("Kd").unwrap(),
+    ///     Card::from_str("Qc").unwrap(),
+    ///     Card::from_str("2s").unwrap(),
+    ///     Card::from_str("7h").unwrap(),
+    /// ]);
+    /// let remaining = Deck::from_full_deck_excluding(&hole, &board);
+    ///
+    /// let result = calc.calculate_turn(hole, &board, &remaining, 1);
+    /// assert!(result.wins + result.ties + result.losses > 0);
+    /// ```
     fn calculate_turn(
         &self,
         hole_cards: HoleCards,
@@ -186,7 +266,38 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
         EquityResult::from_counts(wins, ties, losses, num_opponents)
     }
 
-    /// Calculate equity on the flop using exhaustive enumeration.
+    /// Computes exact equity from the flop by exhaustively enumerating all possible turn and river cards
+    /// and all valid opponent hole-card combinations.
+    ///
+    /// For `num_opponents == 1` this evaluates every turn+river runout and every opponent two-card hand
+    /// to tally wins, ties, and losses for the hero. For `num_opponents > 1` this delegates to the
+    /// multiway enumerator (which is significantly more expensive and may early-return for unsupported
+    /// opponent counts, yielding zeroed results).
+    ///
+    /// # Parameters
+    ///
+    /// - `hole_cards`: hero hole cards (moved by value).
+    /// - `board`: current flop (three board cards).
+    /// - `remaining`: deck excluding dead cards; used to generate turn/river and opponent hands.
+    /// - `num_opponents`: number of opponents to enumerate (multiway enumeration used when > 1).
+    ///
+    /// # Returns
+    ///
+    /// An `EquityResult` containing counts of wins, ties, and losses accumulated across all enumerated
+    /// runouts and opponent hole-card combinations.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // Illustrative usage; assumes appropriate imports and a concrete evaluator implementation.
+    /// let evaluator = CactusKevEvaluator::new();
+    /// let calc = ExhaustiveEquityCalculator::new(evaluator);
+    /// let hole = HoleCards::new(card(Rank::Ace, Suit::Spades), card(Rank::Ace, Suit::Hearts));
+    /// let board = make_board(&[card(Rank::King, Suit::Spades), card(Rank::Queen, Suit::Clubs), card(Rank::Ten, Suit::Hearts)]);
+    /// let remaining = Deck::new(); // deck must exclude dead cards in real use
+    /// let result = calc.calculate_flop(hole, &board, &remaining, 1);
+    /// assert!(result.wins + result.ties + result.losses > 0);
+    /// ```
     fn calculate_flop(
         &self,
         hole_cards: HoleCards,
@@ -263,7 +374,37 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
         EquityResult::from_counts(wins, ties, losses, num_opponents)
     }
 
-    /// Calculate preflop equity using exhaustive enumeration (very slow!).
+    /// Computes exact preflop equity by exhaustively enumerating all possible five-card boards
+    /// and single-opponent hole-card combinations.
+    ///
+    /// For `num_opponents == 1`, this method iterates every distinct 5-card board from `remaining`
+    /// and every legal opponent two-card hand, tallying wins, ties, and losses into an `EquityResult`.
+    /// For `num_opponents > 1` exhaustive enumeration is computationally infeasible; the method
+    /// returns an `EquityResult` with zeroed counts in that case.
+    ///
+    /// # Parameters
+    ///
+    /// - `num_opponents`: number of opponents at the table; only `1` is supported for exhaustive calculation.
+    ///
+    /// # Returns
+    ///
+    /// An `EquityResult` constructed from the aggregated win, tie, and loss counts for the provided
+    /// `hole_cards` against the enumerated runouts and opponent hands.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crate::core::domain::services::equity::ExhaustiveEquityCalculator;
+    /// use crate::core::domain::model::{Card, HoleCards, Deck, Board};
+    /// use crate::core::domain::services::evaluator::CactusKevEvaluator;
+    ///
+    /// let evaluator = CactusKevEvaluator::new();
+    /// let calc = ExhaustiveEquityCalculator::new(evaluator);
+    /// let hero = HoleCards::new(Card::ace_of_spades(), Card::ace_of_hearts());
+    /// let deck = Deck::full().exclude_hole_cards(hero);
+    /// let result = calc.calculate(hero, &Board::empty(), 1);
+    /// assert!(result.equity() > 0.0);
+    /// ```
     fn calculate_preflop(
         &self,
         hole_cards: HoleCards,
@@ -321,7 +462,38 @@ impl<E: HandEvaluator> ExhaustiveEquityCalculator<E> {
         EquityResult::from_counts(wins, ties, losses, num_opponents)
     }
 
-    /// Enumerate all multiway opponent combinations for a complete board.
+    /// Enumerates all opponent hole-card combinations for a complete 5-card board and updates win/tie/loss counters.
+    ///
+    /// This function exhaustively assigns remaining unseen cards as hole cards to 2- or 3-opponent multiway scenarios,
+    /// evaluates each opponent's best 7-card hand against the hero's hand, and increments the provided `wins`, `ties`,
+    /// or `losses` counters for each distinct assignment. If `num_opponents` is greater than 3 the function returns
+    /// immediately without modifying the counters. For `num_opponents == 1`, callers should use the single-opponent
+    /// enumeration path in the caller instead of this function.
+    ///
+    /// Parameters:
+    /// - `hole_cards`: hero's hole cards (by value).
+    /// - `board`: a complete 5-card board used for all evaluations.
+    /// - `remaining`: deck of unseen cards to deal to opponents.
+    /// - `num_opponents`: number of opponents to enumerate; supported values for exhaustive enumeration are 2 and 3.
+    /// - `wins`, `ties`, `losses`: mutable counters incremented for each opponent assignment where the hero wins,
+    ///   ties, or loses respectively.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// # use crate::core::domain::services::equity::ExhaustiveEquityCalculator;
+    /// # use crate::core::domain::entities::{Deck, HoleCards, Board, Card};
+    /// # let calc: ExhaustiveEquityCalculator<_> = unimplemented!();
+    /// # let hole = unimplemented!(); // HoleCards
+    /// # let board = unimplemented!(); // [Card; 5]
+    /// # let deck = unimplemented!(); // Deck
+    /// let mut wins = 0u64;
+    /// let mut ties = 0u64;
+    /// let mut losses = 0u64;
+    /// // enumerate for two opponents
+    /// // calc.enumerate_multiway(hole, &board, &deck, 2, &mut wins, &mut ties, &mut losses);
+    /// # let _ = (wins, ties, losses);
+    /// ```
     #[allow(clippy::too_many_arguments)]
     fn enumerate_multiway(
         &self,

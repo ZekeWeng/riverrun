@@ -10,7 +10,14 @@ pub struct Deck {
 
 /// Constructors
 impl Deck {
-    /// Create a new standard 52-card deck in order.
+    /// Creates a standard 52-card deck in order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::new();
+    /// assert_eq!(deck.remaining(), 52);
+    /// ```
     #[must_use] 
     pub fn new() -> Self {
         let cards = Rank::all()
@@ -19,19 +26,55 @@ impl Deck {
         Self { cards }
     }
 
-    /// Create an empty deck.
+    /// Creates an empty deck with no cards.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::empty();
+    /// assert!(deck.is_empty());
+    /// assert_eq!(deck.remaining(), 0);
+    /// ```
     #[must_use] 
     pub const fn empty() -> Self {
         Self { cards: Vec::new() }
     }
 
-    /// Create a deck from a vector of cards.
+    /// Constructs a Deck containing the provided cards.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let cards = vec![Card::new(Rank::Ace, Suit::Spades), Card::new(Rank::King, Suit::Hearts)];
+    /// let deck = Deck::from_cards(cards.clone());
+    /// assert_eq!(deck.remaining(), 2);
+    /// assert_eq!(deck.to_vec(), cards);
+    /// ```
     #[must_use] 
     pub const fn from_cards(cards: Vec<Card>) -> Self {
         Self { cards }
     }
 
-    /// Create a deck excluding specific cards.
+    /// Builds a standard 52-card deck omitting any cards present in `dead_cards`.
+    ///
+    /// The returned deck contains every card from a fresh standard deck except those
+    /// that are equal to any element in the provided slice. Duplicate entries in
+    /// `dead_cards` have the same effect as a single entry.
+    ///
+    /// # Arguments
+    ///
+    /// * `dead_cards` - slice of cards to remove from the newly created deck.
+    ///
+    /// # Returns
+    ///
+    /// A `Deck` containing all standard cards except those found in `dead_cards`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::excluding(&[] as &[Card]);
+    /// assert_eq!(deck.remaining(), 52);
+    /// ```
     #[must_use] 
     pub fn excluding(dead_cards: &[Card]) -> Self {
         let cards: Vec<Card> = Card::all_cards()
@@ -43,31 +86,90 @@ impl Deck {
 
 /// Accessors
 impl Deck {
-    /// Get the number of remaining cards.
+    /// Number of cards remaining in the deck.
+    ///
+    /// # Returns
+    ///
+    /// `usize` with the count of cards currently in the deck.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::empty();
+    /// assert_eq!(deck.remaining(), 0);
+    /// ```
     #[must_use] 
     pub const fn remaining(&self) -> usize {
         self.cards.len()
     }
 
-    /// Check if the deck is empty.
+    /// Determine whether the deck contains no cards.
+    ///
+    /// # Returns
+    ///
+    /// `true` if the deck contains no cards, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let empty = Deck::empty();
+    /// assert!(empty.is_empty());
+    ///
+    /// let full = Deck::new();
+    /// assert!(!full.is_empty());
+    /// ```
     #[must_use] 
     pub const fn is_empty(&self) -> bool {
         self.cards.is_empty()
     }
 
-    /// Get all cards in the deck.
+    /// Accesses the deck's cards as a slice.
+    ///
+    /// # Returns
+    ///
+    /// `&[Card]` slice of the deck's cards. The slice is ordered with the top of the deck at the end (last element).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::new();
+    /// let cards = deck.cards();
+    /// assert_eq!(cards.len(), deck.remaining());
+    /// ```
     #[must_use] 
     pub fn cards(&self) -> &[Card] {
         &self.cards
     }
 
-    /// Get all cards as a Vec (cloned).
+    /// Produce a Vec containing owned copies of all cards in the deck.
+    ///
+    /// The returned Vec contains cloned `Card` instances detached from the deck's internal storage.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::new();
+    /// let cards = deck.to_vec();
+    /// assert_eq!(cards.len(), deck.remaining());
+    /// ```
     #[must_use] 
     pub fn to_vec(&self) -> Vec<Card> {
         self.cards.clone()
     }
 
-    /// Peek at the top card without removing it.
+    /// Returns a reference to the top card without removing it from the deck.
+    ///
+    /// Returns `Some(&Card)` containing the top card if the deck is non-empty, `None` if the deck is empty.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::new();
+    /// let top = deck.peek();
+    /// assert!(top.is_some());
+    /// // peek does not remove the card
+    /// assert_eq!(deck.remaining(), 52);
+    /// ```
     #[must_use] 
     pub fn peek(&self) -> Option<&Card> {
         self.cards.last()
@@ -82,7 +184,18 @@ impl Deck {
         self.cards.shuffle(rng);
     }
 
-    /// Reset the deck to a full 52-card deck in order.
+    /// Restores the deck to a standard ordered 52-card deck.
+    ///
+    /// Replaces the deck's current contents with a fresh deck containing all 52 cards in canonical order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut deck = Deck::empty();
+    /// assert!(deck.is_empty());
+    /// deck.reset();
+    /// assert_eq!(deck.remaining(), 52);
+    /// ```
     pub fn reset(&mut self) {
         *self = Self::new();
     }
@@ -108,11 +221,25 @@ impl Deck {
 
 /// Poker dealing
 impl Deck {
-    /// Deal hole cards to n players (2 cards each).
-    /// Returns None if not enough cards for all players.
+    /// Deals two hole cards to each of the specified number of players.
     ///
-    /// # Panics
-    /// This function will not panic as it checks for sufficient cards before dealing.
+    /// Each player receives a 2-card array in the returned vector, ordered by dealing sequence
+    /// (first round of one card to each player, then second round). The deck is mutated by
+    /// removing the dealt cards.
+    ///
+    /// # Returns
+    ///
+    /// `Some(Vec<[Card; 2]>)` containing one 2-card hand per player when the deck has enough cards,
+    /// `None` if there are not enough cards to deal to all players.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut deck = Deck::new();
+    /// let hands = deck.deal_hole_cards(2).unwrap();
+    /// assert_eq!(hands.len(), 2);
+    /// assert_eq!(deck.remaining(), 52 - 4);
+    /// ```
     pub fn deal_hole_cards(&mut self, num_players: usize) -> Option<Vec<[Card; 2]>> {
         let total_needed = num_players * 2;
         if self.cards.len() < total_needed {

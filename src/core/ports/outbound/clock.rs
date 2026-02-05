@@ -26,6 +26,7 @@ pub trait Clock: Send + Sync {
 pub struct SystemClock;
 
 impl Clock for SystemClock {
+    #[allow(clippy::cast_possible_truncation)]
     fn now(&self) -> Timestamp {
         SystemTime::now()
             .duration_since(UNIX_EPOCH)
@@ -44,13 +45,15 @@ pub struct FixedClock {
 
 impl FixedClock {
     /// Create a new fixed clock with the given timestamp.
-    pub fn new(timestamp: Timestamp) -> Self {
-        FixedClock { timestamp }
+    #[must_use]
+    pub const fn new(timestamp: Timestamp) -> Self {
+        Self { timestamp }
     }
 
     /// Create a fixed clock set to Unix epoch (timestamp 0).
-    pub fn epoch() -> Self {
-        FixedClock { timestamp: 0 }
+    #[must_use]
+    pub const fn epoch() -> Self {
+        Self { timestamp: 0 }
     }
 }
 

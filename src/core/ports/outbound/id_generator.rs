@@ -25,8 +25,9 @@ pub struct SequentialIdGenerator {
 
 impl SequentialIdGenerator {
     /// Create a new sequential generator starting from 1.
+    #[must_use]
     pub fn new() -> Self {
-        SequentialIdGenerator {
+        Self {
             counter: AtomicU64::new(0),
             prefix: String::new(),
         }
@@ -36,8 +37,9 @@ impl SequentialIdGenerator {
     ///
     /// # Arguments
     /// * `prefix` - String prefix for generated IDs (e.g., "game-", "hand-")
+    #[must_use]
     pub fn with_prefix(prefix: impl Into<String>) -> Self {
-        SequentialIdGenerator {
+        Self {
             counter: AtomicU64::new(0),
             prefix: prefix.into(),
         }
@@ -47,8 +49,9 @@ impl SequentialIdGenerator {
     ///
     /// # Arguments
     /// * `start` - The first ID to generate
+    #[must_use]
     pub fn starting_from(start: u64) -> Self {
-        SequentialIdGenerator {
+        Self {
             counter: AtomicU64::new(start.saturating_sub(1)),
             prefix: String::new(),
         }
@@ -67,7 +70,7 @@ impl IdGenerator for SequentialIdGenerator {
         if self.prefix.is_empty() {
             id.to_string()
         } else {
-            format!("{}{}", self.prefix, id)
+            format!("{}{id}", self.prefix)
         }
     }
 }
@@ -81,8 +84,9 @@ pub struct SimpleUuidGenerator;
 
 impl SimpleUuidGenerator {
     /// Create a new UUID generator.
-    pub fn new() -> Self {
-        SimpleUuidGenerator
+    #[must_use]
+    pub const fn new() -> Self {
+        Self
     }
 }
 

@@ -23,9 +23,9 @@ pub enum SnapshotError {
 impl fmt::Display for SnapshotError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            SnapshotError::NotFound(id) => write!(f, "snapshot not found: {}", id),
-            SnapshotError::StorageError(msg) => write!(f, "storage error: {}", msg),
-            SnapshotError::SerializationError(msg) => write!(f, "serialization error: {}", msg),
+            Self::NotFound(id) => write!(f, "snapshot not found: {id}"),
+            Self::StorageError(msg) => write!(f, "storage error: {msg}"),
+            Self::SerializationError(msg) => write!(f, "serialization error: {msg}"),
         }
     }
 }
@@ -47,8 +47,9 @@ pub struct Snapshot<S> {
 
 impl<S> Snapshot<S> {
     /// Create a new snapshot.
-    pub fn new(state: S, version: Version, timestamp: Timestamp, game_id: GameId) -> Self {
-        Snapshot {
+    #[must_use]
+    pub const fn new(state: S, version: Version, timestamp: Timestamp, game_id: GameId) -> Self {
+        Self {
             state,
             version,
             timestamp,
@@ -71,8 +72,9 @@ pub trait SnapshotStore<S>: Send + Sync {
     /// # Arguments
     /// * `snapshot` - The snapshot to store
     ///
-    /// # Returns
-    /// `Ok(())` on success, or an error if storage fails.
+    /// # Errors
+    /// Returns `SnapshotError::StorageError` on I/O errors.
+    /// Returns `SnapshotError::SerializationError` if serialization fails.
     fn save(&self, snapshot: &Snapshot<S>) -> Result<(), SnapshotError>;
 
     /// Load the most recent snapshot for an aggregate.
@@ -80,14 +82,18 @@ pub trait SnapshotStore<S>: Send + Sync {
     /// # Arguments
     /// * `game_id` - The aggregate/game identifier
     ///
-    /// # Returns
-    /// The most recent snapshot, or `NotFound` if no snapshot exists.
+    /// # Errors
+    /// Returns `SnapshotError::NotFound` if no snapshot exists.
+    /// Returns `SnapshotError::StorageError` on I/O errors.
     fn load(&self, game_id: &GameId) -> Result<Snapshot<S>, SnapshotError>;
 
     /// Delete all snapshots for an aggregate.
     ///
     /// # Arguments
     /// * `game_id` - The aggregate/game identifier
+    ///
+    /// # Errors
+    /// Returns `SnapshotError::StorageError` on I/O errors.
     fn delete(&self, game_id: &GameId) -> Result<(), SnapshotError>;
 
     /// Check if a snapshot exists for an aggregate.
@@ -105,7 +111,7 @@ pub struct SnapshotPolicy {
 
 impl Default for SnapshotPolicy {
     fn default() -> Self {
-        SnapshotPolicy {
+        Self {
             every_n_events: 100,
             max_events_since_snapshot: 100,
         }
@@ -118,10 +124,15 @@ impl SnapshotPolicy {
     /// # Arguments
     /// * `current_version` - Current event version
     /// * `last_snapshot_version` - Version of the last snapshot (0 if none)
-    pub fn should_snapshot(&self, current_version: Version, last_snapshot_version: Version) -> bool {
+    #[must_use]
+    pub const fn should_snapshot(
+        &self,
+        current_version: Version,
+        last_snapshot_version: Version,
+    ) -> bool {
         let events_since = current_version.saturating_sub(last_snapshot_version);
         events_since >= self.max_events_since_snapshot
-            || (current_version > 0 && current_version % self.every_n_events == 0)
+            || (current_version > 0 && current_version.is_multiple_of(self.every_n_events))
     }
 }
 

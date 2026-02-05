@@ -29,9 +29,9 @@ pub enum ReadModelError {
 impl fmt::Display for ReadModelError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ReadModelError::NotFound(id) => write!(f, "not found: {}", id),
-            ReadModelError::StorageError(msg) => write!(f, "storage error: {}", msg),
-            ReadModelError::InvalidQuery(msg) => write!(f, "invalid query: {}", msg),
+            Self::NotFound(id) => write!(f, "not found: {id}"),
+            Self::StorageError(msg) => write!(f, "storage error: {msg}"),
+            Self::InvalidQuery(msg) => write!(f, "invalid query: {msg}"),
         }
     }
 }
@@ -65,7 +65,8 @@ pub struct HandSummary {
 
 impl HandSummary {
     /// Get the duration of the hand in milliseconds.
-    pub fn duration_ms(&self) -> u64 {
+    #[must_use]
+    pub const fn duration_ms(&self) -> u64 {
         self.ended_at.saturating_sub(self.started_at)
     }
 }
@@ -73,12 +74,21 @@ impl HandSummary {
 /// Port for storing and querying hand summaries.
 pub trait HandSummaryStore: Send + Sync {
     /// Save or update a hand summary.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn save(&self, summary: &HandSummary) -> Result<(), ReadModelError>;
 
     /// Get a hand summary by ID.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::NotFound` if the hand doesn't exist.
     fn get(&self, hand_id: &HandId) -> Result<HandSummary, ReadModelError>;
 
     /// Find hands by player ID.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn find_by_player(
         &self,
         player_id: &PlayerId,
@@ -87,6 +97,9 @@ pub trait HandSummaryStore: Send + Sync {
     ) -> Result<Vec<HandSummary>, ReadModelError>;
 
     /// Find hands within a time range.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn find_by_time_range(
         &self,
         from: Timestamp,
@@ -95,9 +108,15 @@ pub trait HandSummaryStore: Send + Sync {
     ) -> Result<Vec<HandSummary>, ReadModelError>;
 
     /// Find hands by game ID.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn find_by_game(&self, game_id: &GameId) -> Result<Vec<HandSummary>, ReadModelError>;
 
     /// Count hands for a player.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn count_by_player(&self, player_id: &PlayerId) -> Result<u64, ReadModelError>;
 }
 
@@ -116,6 +135,8 @@ pub struct PlayerStats {
 
 impl PlayerStats {
     /// Calculate win rate as a percentage.
+    #[must_use]
+    #[allow(clippy::cast_precision_loss)]
     pub fn win_rate(&self) -> f64 {
         if self.hands_played == 0 {
             0.0
@@ -128,15 +149,27 @@ impl PlayerStats {
 /// Port for storing and querying player statistics.
 pub trait PlayerStatsStore: Send + Sync {
     /// Get stats for a player, creating default if not exists.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn get(&self, player_id: &PlayerId) -> Result<PlayerStats, ReadModelError>;
 
     /// Update player stats (typically called when processing events).
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn save(&self, stats: &PlayerStats) -> Result<(), ReadModelError>;
 
     /// Get top players by wins.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn top_by_wins(&self, limit: usize) -> Result<Vec<PlayerStats>, ReadModelError>;
 
     /// Get top players by win rate (minimum hands required).
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn top_by_win_rate(
         &self,
         min_hands: u64,
@@ -164,18 +197,33 @@ pub struct ActiveGameState {
 /// Port for storing and querying active game states.
 pub trait ActiveGameStore: Send + Sync {
     /// Save or update active game state.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn save(&self, state: &ActiveGameState) -> Result<(), ReadModelError>;
 
     /// Get active game state.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::NotFound` if the game doesn't exist.
     fn get(&self, game_id: &GameId) -> Result<ActiveGameState, ReadModelError>;
 
     /// Remove a game (when completed).
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn remove(&self, game_id: &GameId) -> Result<(), ReadModelError>;
 
     /// List all active games.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn list_active(&self) -> Result<Vec<ActiveGameState>, ReadModelError>;
 
     /// Count active games.
+    ///
+    /// # Errors
+    /// Returns `ReadModelError::StorageError` on I/O errors.
     fn count_active(&self) -> Result<u64, ReadModelError>;
 }
 

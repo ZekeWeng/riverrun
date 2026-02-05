@@ -26,10 +26,7 @@ pub enum GameNotification {
     },
 
     /// Hole cards have been dealt.
-    HoleCardsDealt {
-        game_id: GameId,
-        timestamp: Timestamp,
-    },
+    HoleCardsDealt { game_id: GameId, timestamp: Timestamp },
 
     /// Community cards dealt (flop/turn/river).
     StreetDealt {
@@ -46,10 +43,7 @@ pub enum GameNotification {
     },
 
     /// The game has ended.
-    GameEnded {
-        game_id: GameId,
-        timestamp: Timestamp,
-    },
+    GameEnded { game_id: GameId, timestamp: Timestamp },
 }
 
 /// Street enum for notifications (separate from domain to avoid coupling).
@@ -63,26 +57,28 @@ pub enum Street {
 
 impl GameNotification {
     /// Get the game ID from any notification.
+    #[must_use]
     pub fn game_id(&self) -> &GameId {
         match self {
-            GameNotification::GameStarted { game_id, .. }
-            | GameNotification::PlayerJoined { game_id, .. }
-            | GameNotification::HoleCardsDealt { game_id, .. }
-            | GameNotification::StreetDealt { game_id, .. }
-            | GameNotification::Showdown { game_id, .. }
-            | GameNotification::GameEnded { game_id, .. } => game_id,
+            Self::GameStarted { game_id, .. }
+            | Self::PlayerJoined { game_id, .. }
+            | Self::HoleCardsDealt { game_id, .. }
+            | Self::StreetDealt { game_id, .. }
+            | Self::Showdown { game_id, .. }
+            | Self::GameEnded { game_id, .. } => game_id,
         }
     }
 
     /// Get the timestamp from any notification.
-    pub fn timestamp(&self) -> Timestamp {
+    #[must_use]
+    pub const fn timestamp(&self) -> Timestamp {
         match self {
-            GameNotification::GameStarted { timestamp, .. }
-            | GameNotification::PlayerJoined { timestamp, .. }
-            | GameNotification::HoleCardsDealt { timestamp, .. }
-            | GameNotification::StreetDealt { timestamp, .. }
-            | GameNotification::Showdown { timestamp, .. }
-            | GameNotification::GameEnded { timestamp, .. } => *timestamp,
+            Self::GameStarted { timestamp, .. }
+            | Self::PlayerJoined { timestamp, .. }
+            | Self::HoleCardsDealt { timestamp, .. }
+            | Self::StreetDealt { timestamp, .. }
+            | Self::Showdown { timestamp, .. }
+            | Self::GameEnded { timestamp, .. } => *timestamp,
         }
     }
 }
@@ -91,7 +87,7 @@ impl GameNotification {
 ///
 /// Implementations can:
 /// - Send over WebSocket to connected clients
-/// - Publish to a message queue (Kafka, RabbitMQ)
+/// - Publish to a message queue (Kafka, `RabbitMQ`)
 /// - Trigger webhooks
 /// - Log for debugging
 pub trait NotificationPublisher: Send + Sync {

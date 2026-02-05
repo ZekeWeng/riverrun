@@ -26,8 +26,9 @@ pub struct StoredEvent<E> {
 
 impl<E> StoredEvent<E> {
     /// Create a new stored event.
-    pub fn new(event: E, version: Version, timestamp: Timestamp, game_id: GameId) -> Self {
-        StoredEvent {
+    #[must_use]
+    pub const fn new(event: E, version: Version, timestamp: Timestamp, game_id: GameId) -> Self {
+        Self {
             event,
             version,
             timestamp,
@@ -55,16 +56,15 @@ pub enum EventStoreError {
 impl fmt::Display for EventStoreError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            EventStoreError::ConcurrencyConflict { expected, actual } => {
+            Self::ConcurrencyConflict { expected, actual } => {
                 write!(
                     f,
-                    "concurrency conflict: expected version {}, actual {}",
-                    expected, actual
+                    "concurrency conflict: expected version {expected}, actual {actual}"
                 )
             }
-            EventStoreError::NotFound(id) => write!(f, "game not found: {}", id),
-            EventStoreError::StorageError(msg) => write!(f, "storage error: {}", msg),
-            EventStoreError::SerializationError(msg) => write!(f, "serialization error: {}", msg),
+            Self::NotFound(id) => write!(f, "game not found: {id}"),
+            Self::StorageError(msg) => write!(f, "storage error: {msg}"),
+            Self::SerializationError(msg) => write!(f, "serialization error: {msg}"),
         }
     }
 }
@@ -91,6 +91,10 @@ pub trait EventStore<E>: Send + Sync {
     /// The new version after appending, or an error if:
     /// - `ConcurrencyConflict`: Another write happened since we read
     /// - `StorageError`: I/O or database error
+    ///
+    /// # Errors
+    /// Returns `EventStoreError::ConcurrencyConflict` if the expected version doesn't match.
+    /// Returns `EventStoreError::StorageError` on I/O or database errors.
     fn append(
         &self,
         game_id: &GameId,
@@ -105,6 +109,10 @@ pub trait EventStore<E>: Send + Sync {
     ///
     /// # Returns
     /// All stored events in order, or `NotFound` if the aggregate doesn't exist.
+    ///
+    /// # Errors
+    /// Returns `EventStoreError::NotFound` if the aggregate doesn't exist.
+    /// Returns `EventStoreError::StorageError` on I/O errors.
     fn load(&self, game_id: &GameId) -> Result<Vec<StoredEvent<E>>, EventStoreError>;
 
     /// Load events starting from a specific version.
@@ -113,10 +121,13 @@ pub trait EventStore<E>: Send + Sync {
     ///
     /// # Arguments
     /// * `game_id` - The aggregate/game identifier
-    /// * `from_version` - Load events with version > from_version
+    /// * `from_version` - Load events with version > `from_version`
     ///
     /// # Returns
     /// Events after the specified version, or empty vec if none.
+    ///
+    /// # Errors
+    /// Returns `EventStoreError::StorageError` on I/O errors.
     fn load_from(
         &self,
         game_id: &GameId,
@@ -130,6 +141,9 @@ pub trait EventStore<E>: Send + Sync {
     ///
     /// # Returns
     /// The current version, or 0 if the aggregate doesn't exist.
+    ///
+    /// # Errors
+    /// Returns `EventStoreError::StorageError` on I/O errors.
     fn version(&self, game_id: &GameId) -> Result<Version, EventStoreError>;
 
     /// Check if an aggregate exists.

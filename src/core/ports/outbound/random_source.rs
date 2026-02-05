@@ -40,13 +40,15 @@ impl FixedRandomSource {
     /// Create a new fixed random source.
     ///
     /// Always returns the same index (clamped to valid range).
-    pub fn new(fixed_index: usize) -> Self {
-        FixedRandomSource { index: fixed_index }
+    #[must_use]
+    pub const fn new(fixed_index: usize) -> Self {
+        Self { index: fixed_index }
     }
 
     /// Create a fixed source that always returns 0.
-    pub fn zero() -> Self {
-        FixedRandomSource { index: 0 }
+    #[must_use]
+    pub const fn zero() -> Self {
+        Self { index: 0 }
     }
 }
 
@@ -71,12 +73,13 @@ pub struct RandRandomSource<R: rand::Rng> {
 
 impl<R: rand::Rng> RandRandomSource<R> {
     /// Create a new random source wrapping the given RNG.
-    pub fn new(rng: R) -> Self {
-        RandRandomSource { rng }
+    pub const fn new(rng: R) -> Self {
+        Self { rng }
     }
 
     /// Get a reference to the underlying RNG.
-    pub fn inner(&self) -> &R {
+    #[must_use]
+    pub const fn inner(&self) -> &R {
         &self.rng
     }
 

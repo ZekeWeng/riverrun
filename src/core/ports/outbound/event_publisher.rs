@@ -1,77 +1,153 @@
-//! Game event publishing port.
+//! Game event publishing port for real-time notifications.
 
-use crate::core::domain::entities::board::Street;
-use crate::core::domain::entities::card::Card;
+use super::clock::Timestamp;
+use super::event_store::GameId;
+use super::read_model::PlayerId;
 
-/// Events that can occur during a poker game.
+/// Events that can be published for real-time notification.
+///
+/// These are simplified events for external consumers (UI, webhooks).
+/// Full event details are stored in the event store.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum GameEvent {
+pub enum GameNotification {
     /// A new game has started.
     GameStarted {
-        /// Number of players in the game.
+        game_id: GameId,
+        timestamp: Timestamp,
         num_players: usize,
+        player_ids: Vec<PlayerId>,
     },
 
-    /// Hole cards have been dealt to players.
+    /// A player joined the game.
+    PlayerJoined {
+        game_id: GameId,
+        timestamp: Timestamp,
+        player_id: PlayerId,
+    },
+
+    /// Hole cards have been dealt.
     HoleCardsDealt {
-        /// Number of players who received cards.
-        num_players: usize,
+        game_id: GameId,
+        timestamp: Timestamp,
     },
 
-    /// Community cards have been dealt.
-    CommunityCardsDealt {
-        /// The current street after dealing.
+    /// Community cards dealt (flop/turn/river).
+    StreetDealt {
+        game_id: GameId,
+        timestamp: Timestamp,
         street: Street,
-        /// The cards that were just dealt.
-        cards: Vec<Card>,
     },
 
-    /// The game has reached showdown.
+    /// The hand has reached showdown.
     Showdown {
-        /// Indices of the winning player(s).
-        winners: Vec<usize>,
+        game_id: GameId,
+        timestamp: Timestamp,
+        winner_ids: Vec<PlayerId>,
     },
 
-    /// The game has been reset for a new hand.
-    GameReset,
+    /// The game has ended.
+    GameEnded {
+        game_id: GameId,
+        timestamp: Timestamp,
+    },
 }
 
-/// Port for publishing game events.
-///
-/// This trait defines the interface for event notification.
-/// Implementations can:
-/// - Log events to a file or console
-/// - Send events over a network (WebSocket, message queue)
-/// - Trigger UI updates
-/// - Record analytics
-pub trait EventPublisher: Send + Sync {
-    /// Publish a game event.
-    ///
-    /// # Arguments
-    /// * `event` - The event to publish
-    fn publish(&self, event: GameEvent);
+/// Street enum for notifications (separate from domain to avoid coupling).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Street {
+    Preflop,
+    Flop,
+    Turn,
+    River,
+}
 
-    /// Publish multiple events in order.
-    ///
-    /// Default implementation calls `publish` for each event.
-    ///
-    /// # Arguments
-    /// * `events` - The events to publish
-    fn publish_batch(&self, events: &[GameEvent]) {
-        for event in events {
-            self.publish(event.clone());
+impl GameNotification {
+    /// Get the game ID from any notification.
+    pub fn game_id(&self) -> &GameId {
+        match self {
+            GameNotification::GameStarted { game_id, .. }
+            | GameNotification::PlayerJoined { game_id, .. }
+            | GameNotification::HoleCardsDealt { game_id, .. }
+            | GameNotification::StreetDealt { game_id, .. }
+            | GameNotification::Showdown { game_id, .. }
+            | GameNotification::GameEnded { game_id, .. } => game_id,
+        }
+    }
+
+    /// Get the timestamp from any notification.
+    pub fn timestamp(&self) -> Timestamp {
+        match self {
+            GameNotification::GameStarted { timestamp, .. }
+            | GameNotification::PlayerJoined { timestamp, .. }
+            | GameNotification::HoleCardsDealt { timestamp, .. }
+            | GameNotification::StreetDealt { timestamp, .. }
+            | GameNotification::Showdown { timestamp, .. }
+            | GameNotification::GameEnded { timestamp, .. } => *timestamp,
         }
     }
 }
 
-/// A no-op event publisher that discards all events.
+/// Port for publishing game notifications in real-time.
 ///
-/// Useful for testing or when event publishing is not needed.
+/// Implementations can:
+/// - Send over WebSocket to connected clients
+/// - Publish to a message queue (Kafka, RabbitMQ)
+/// - Trigger webhooks
+/// - Log for debugging
+pub trait NotificationPublisher: Send + Sync {
+    /// Publish a notification.
+    fn publish(&self, notification: GameNotification);
+
+    /// Publish multiple notifications in order.
+    fn publish_batch(&self, notifications: &[GameNotification]) {
+        for notification in notifications {
+            self.publish(notification.clone());
+        }
+    }
+}
+
+/// A no-op publisher that discards all notifications.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct NoOpPublisher;
 
-impl EventPublisher for NoOpPublisher {
-    fn publish(&self, _event: GameEvent) {
-        // Intentionally empty - discards all events
+impl NotificationPublisher for NoOpPublisher {
+    fn publish(&self, _notification: GameNotification) {
+        // Intentionally empty
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_notification_game_id() {
+        let notification = GameNotification::GameStarted {
+            game_id: "game-123".to_string(),
+            timestamp: 1000,
+            num_players: 4,
+            player_ids: vec![],
+        };
+        assert_eq!(notification.game_id(), "game-123");
+    }
+
+    #[test]
+    fn test_notification_timestamp() {
+        let notification = GameNotification::StreetDealt {
+            game_id: "game-123".to_string(),
+            timestamp: 2000,
+            street: Street::Flop,
+        };
+        assert_eq!(notification.timestamp(), 2000);
+    }
+
+    #[test]
+    fn test_noop_publisher() {
+        let publisher = NoOpPublisher;
+        // Should not panic
+        publisher.publish(GameNotification::GameEnded {
+            game_id: "game-1".to_string(),
+            timestamp: 0,
+        });
     }
 }

@@ -26,6 +26,17 @@ pub const FIVE_FROM_SEVEN: [[usize; 5]; 21] = [
 ];
 
 /// Compute the binomial coefficient C(n, k).
+///
+/// Returns 0 when k > n. Uses symmetry so C(n, k) == C(n, n - k).
+///
+/// # Examples
+///
+/// ```
+/// assert_eq!(binomial(5, 2), 10);
+/// assert_eq!(binomial(6, 3), 20);
+/// assert_eq!(binomial(4, 5), 0);
+/// ```
+#[must_use] 
 pub fn binomial(n: usize, k: usize) -> usize {
     if k > n {
         return 0;
@@ -41,7 +52,20 @@ pub fn binomial(n: usize, k: usize) -> usize {
     res
 }
 
-/// Generate all k-combinations of n elements (indices 0 to n-1).
+/// Generate all k-sized combinations of indices 0..n-1.
+///
+/// Returns an empty vector if k > n. If k == 0, returns a vector containing a single empty combination.
+/// Each combination is a Vec<usize> of length k with indices in ascending order.
+///
+/// # Examples
+///
+/// ```
+/// let combos = combinations(4, 2);
+/// assert_eq!(combos.len(), 6);
+/// assert!(combos.contains(&vec![0, 1]));
+/// assert!(combos.contains(&vec![2, 3]));
+/// ```
+#[must_use] 
 pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
     if k > n {
         return Vec::new();
@@ -78,7 +102,27 @@ pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
     result
 }
 
-/// Check if a set of 5 ranks forms a straight pattern.
+/// Determine whether five card ranks form a straight, including the wheel (A-2-3-4-5).
+///
+/// Expects a slice of exactly five rank indices. Ranks use 0..=12 with `12` representing Ace;
+/// the special case `[0, 1, 2, 3, 12]` is treated as a valid straight (wheel).
+///
+/// # Examples
+///
+/// ```
+/// // 8-9-10-J-Q (consecutive)
+/// assert!(is_straight_pattern(&[6, 7, 8, 9, 10]));
+/// // Wheel: A-2-3-4-5
+/// assert!(is_straight_pattern(&[0, 1, 2, 3, 12]));
+/// // Not a straight: gap and duplicate
+/// assert!(!is_straight_pattern(&[0, 1, 2, 3, 5]));
+/// assert!(!is_straight_pattern(&[0, 0, 1, 2, 3]));
+/// ```
+///
+/// # Returns
+///
+/// `true` if the five ranks form a straight (including the wheel), `false` otherwise.
+#[must_use] 
 pub fn is_straight_pattern(ranks: &[usize]) -> bool {
     if ranks.len() != 5 {
         return false;

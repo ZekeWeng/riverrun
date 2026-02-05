@@ -37,13 +37,23 @@ pub enum Suit {
 
 /// Suit - Constructors
 impl Suit {
-    /// Create a suit from a u8 value (0-3).
-    pub fn from_u8(value: u8) -> Option<Self> {
+    /// Convert a numeric value (0–3) to its corresponding suit.
+    ///
+    /// Returns `Some(Suit)` for 0 => Clubs, 1 => Diamonds, 2 => Hearts, 3 => Spades; returns `None` for any other value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// assert_eq!(Suit::from_u8(0), Some(Suit::Clubs));
+    /// assert_eq!(Suit::from_u8(3), Some(Suit::Spades));
+    /// assert_eq!(Suit::from_u8(4), None);
+    /// ``` 
+    pub const fn from_u8(value: u8) -> Option<Self> {
         match value {
-            0 => Some(Suit::Clubs),
-            1 => Some(Suit::Diamonds),
-            2 => Some(Suit::Hearts),
-            3 => Some(Suit::Spades),
+            0 => Some(Self::Clubs),
+            1 => Some(Self::Diamonds),
+            2 => Some(Self::Hearts),
+            3 => Some(Self::Spades),
             _ => None,
         }
     }
@@ -51,19 +61,47 @@ impl Suit {
 
 /// Suit - Accessors
 impl Suit {
-    /// Get the character representation.
-    pub fn as_char(self) -> char {
+    /// Get the display character for this suit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Suit::Spades.as_char();
+    /// assert_eq!(c, 's');
+    /// ``` 
+    pub const fn as_char(self) -> char {
         SUIT_CHARS[self as usize]
     }
 
-    /// Get the suit bit mask.
-    pub fn bit_mask(self) -> u32 {
+    /// Get the bit mask for this suit in the Cactus Kev card encoding.
+    ///
+    /// The mask has a single bit set at position (suit_index + 12).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crate::core::domain::entities::card::Suit;
+    ///
+    /// assert_eq!(Suit::Clubs.bit_mask(), 1u32 << 12);
+    /// assert_eq!(Suit::Spades.bit_mask(), 1u32 << 15);
+    /// ```
+    #[must_use] 
+    pub const fn bit_mask(self) -> u32 {
         1u32 << (self as u8 + 12)
     }
 
-    /// Iterate over all suits.
-    pub fn all() -> impl Iterator<Item = Suit> {
-        [Suit::Clubs, Suit::Diamonds, Suit::Hearts, Suit::Spades].into_iter()
+    /// Returns an iterator over the four suits in order: Clubs, Diamonds, Hearts, Spades.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let suits: Vec<_> = Suit::all().collect();
+    /// assert_eq!(suits.len(), 4);
+    /// assert_eq!(suits[0], Suit::Clubs);
+    /// assert_eq!(suits[3], Suit::Spades);
+    /// ```
+    pub fn all() -> impl Iterator<Item = Self> {
+        [Self::Clubs, Self::Diamonds, Self::Hearts, Self::Spades].into_iter()
     }
 }
 
@@ -76,15 +114,27 @@ impl fmt::Display for Suit {
 impl FromStr for Suit {
     type Err = ParseCardError;
 
+    /// Parses a single-character suit code into a `Suit`.
+    ///
+    /// Accepts the characters `c`, `d`, `h`, `s` in either lower- or upper-case and returns the matching `Suit`.
+    /// Returns `Err(ParseCardError::InvalidSuit)` if the input is not exactly one character or is not a recognized suit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::str::FromStr;
+    /// let s = Suit::from_str("s").unwrap();
+    /// assert_eq!(s, Suit::Spades);
+    /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() != 1 {
             return Err(ParseCardError::InvalidSuit);
         }
         match s.chars().next().unwrap() {
-            'c' | 'C' => Ok(Suit::Clubs),
-            'd' | 'D' => Ok(Suit::Diamonds),
-            'h' | 'H' => Ok(Suit::Hearts),
-            's' | 'S' => Ok(Suit::Spades),
+            'c' | 'C' => Ok(Self::Clubs),
+            'd' | 'D' => Ok(Self::Diamonds),
+            'h' | 'H' => Ok(Self::Hearts),
+            's' | 'S' => Ok(Self::Spades),
             _ => Err(ParseCardError::InvalidSuit),
         }
     }
@@ -111,22 +161,33 @@ pub enum Rank {
 
 /// Rank - Constructors
 impl Rank {
-    /// Create a rank from a u8 value (0-12).
-    pub fn from_u8(value: u8) -> Option<Self> {
+    /// Convert an integer in the range 0–12 into the corresponding `Rank`.
+    ///
+    /// Returns `Some(rank)` for values 0 through 12 (mapping 0→Two, …, 12→Ace), and `None` for any other value.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// assert_eq!(Rank::from_u8(0), Some(Rank::Two));
+    /// assert_eq!(Rank::from_u8(12), Some(Rank::Ace));
+    /// assert_eq!(Rank::from_u8(13), None);
+    /// ```
+    #[must_use] 
+    pub const fn from_u8(value: u8) -> Option<Self> {
         match value {
-            0 => Some(Rank::Two),
-            1 => Some(Rank::Three),
-            2 => Some(Rank::Four),
-            3 => Some(Rank::Five),
-            4 => Some(Rank::Six),
-            5 => Some(Rank::Seven),
-            6 => Some(Rank::Eight),
-            7 => Some(Rank::Nine),
-            8 => Some(Rank::Ten),
-            9 => Some(Rank::Jack),
-            10 => Some(Rank::Queen),
-            11 => Some(Rank::King),
-            12 => Some(Rank::Ace),
+            0 => Some(Self::Two),
+            1 => Some(Self::Three),
+            2 => Some(Self::Four),
+            3 => Some(Self::Five),
+            4 => Some(Self::Six),
+            5 => Some(Self::Seven),
+            6 => Some(Self::Eight),
+            7 => Some(Self::Nine),
+            8 => Some(Self::Ten),
+            9 => Some(Self::Jack),
+            10 => Some(Self::Queen),
+            11 => Some(Self::King),
+            12 => Some(Self::Ace),
             _ => None,
         }
     }
@@ -134,24 +195,63 @@ impl Rank {
 
 /// Rank - Accessors
 impl Rank {
-    /// Get the character representation.
-    pub fn as_char(self) -> char {
+    /// Provides the single-character display symbol for the rank.
+    ///
+    /// # Returns
+    ///
+    /// The ASCII character used to display the rank (for example, `'A'` for Ace, `'T'` for Ten).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Rank::Ace.as_char();
+    /// assert_eq!(c, 'A');
+    /// ```
+    #[must_use] 
+    pub const fn as_char(self) -> char {
         RANK_CHARS[self as usize]
     }
 
-    /// Get the prime number for this rank.
-    pub fn prime(self) -> u32 {
+    /// Returns the prime number associated with this rank.
+    ///
+    /// The prime numbers are the canonical values used by the Cactus Kev encoding for hand evaluation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crate::core::domain::entities::card::Rank;
+    /// assert_eq!(Rank::Ace.prime(), 41);
+    /// ```
+    #[must_use] 
+    pub const fn prime(self) -> u32 {
         PRIMES[self as usize]
     }
 
-    /// Get the rank bit mask (for flush detection).
-    pub fn bit_mask(self) -> u32 {
+    /// Compute the bit mask for this rank as used in card bitfield representations.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mask = Rank::Ace.bit_mask();
+    /// assert_eq!(mask, 1u32 << (12 + 16));
+    /// ```
+    #[must_use] 
+    pub const fn bit_mask(self) -> u32 {
         1u32 << (self as u8 + 16)
     }
 
-    /// Iterate over all ranks (2 to A).
-    pub fn all() -> impl Iterator<Item = Rank> {
-        (0..13).map(|i| Rank::from_u8(i).unwrap())
+    /// Iterate over all ranks from Two to Ace in ascending order.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let ranks: Vec<_> = crate::Rank::all().collect();
+    /// assert_eq!(ranks.len(), 13);
+    /// assert_eq!(ranks[0], crate::Rank::Two);
+    /// assert_eq!(ranks[12], crate::Rank::Ace);
+    /// ```
+    pub fn all() -> impl Iterator<Item = Self> {
+        (0..13).map(|i| Self::from_u8(i).unwrap())
     }
 }
 
@@ -164,24 +264,41 @@ impl fmt::Display for Rank {
 impl FromStr for Rank {
     type Err = ParseCardError;
 
+    /// Parses a single-character rank token into a `Rank`.
+    ///
+    /// Accepts characters `2`-`9`, `T`/`t`, `J`/`j`, `Q`/`q`, `K`/`k`, and `A`/`a`.
+    ///
+    /// # Returns
+    ///
+    /// `Ok(Rank)` for a valid single-character rank, `Err(ParseCardError::InvalidRank)` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use std::str::FromStr;
+    /// assert_eq!(Rank::from_str("A").unwrap(), Rank::Ace);
+    /// assert_eq!(Rank::from_str("t").unwrap(), Rank::Ten);
+    /// assert!(Rank::from_str("10").is_err());
+    /// assert!(Rank::from_str("x").is_err());
+    /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() != 1 {
             return Err(ParseCardError::InvalidRank);
         }
         match s.chars().next().unwrap() {
-            '2' => Ok(Rank::Two),
-            '3' => Ok(Rank::Three),
-            '4' => Ok(Rank::Four),
-            '5' => Ok(Rank::Five),
-            '6' => Ok(Rank::Six),
-            '7' => Ok(Rank::Seven),
-            '8' => Ok(Rank::Eight),
-            '9' => Ok(Rank::Nine),
-            'T' | 't' => Ok(Rank::Ten),
-            'J' | 'j' => Ok(Rank::Jack),
-            'Q' | 'q' => Ok(Rank::Queen),
-            'K' | 'k' => Ok(Rank::King),
-            'A' | 'a' => Ok(Rank::Ace),
+            '2' => Ok(Self::Two),
+            '3' => Ok(Self::Three),
+            '4' => Ok(Self::Four),
+            '5' => Ok(Self::Five),
+            '6' => Ok(Self::Six),
+            '7' => Ok(Self::Seven),
+            '8' => Ok(Self::Eight),
+            '9' => Ok(Self::Nine),
+            'T' | 't' => Ok(Self::Ten),
+            'J' | 'j' => Ok(Self::Jack),
+            'Q' | 'q' => Ok(Self::Queen),
+            'K' | 'k' => Ok(Self::King),
+            'A' | 'a' => Ok(Self::Ace),
             _ => Err(ParseCardError::InvalidRank),
         }
     }
@@ -196,11 +313,19 @@ pub enum ParseCardError {
 }
 
 impl fmt::Display for ParseCardError {
+    /// Formats the parse error as a concise, human-readable message.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let e = ParseCardError::InvalidLength;
+    /// assert_eq!(format!("{}", e), "card string must be exactly 2 characters");
+    /// ```
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ParseCardError::InvalidLength => write!(f, "card string must be exactly 2 characters"),
-            ParseCardError::InvalidRank => write!(f, "invalid rank character"),
-            ParseCardError::InvalidSuit => write!(f, "invalid suit character"),
+            Self::InvalidLength => write!(f, "card string must be exactly 2 characters"),
+            Self::InvalidRank => write!(f, "invalid rank character"),
+            Self::InvalidSuit => write!(f, "invalid suit character"),
         }
     }
 }
@@ -213,34 +338,90 @@ pub struct Card(pub(crate) u32);
 
 /// Card - Constructors
 impl Card {
-    /// Create a new card from Rank and Suit enums.
-    pub fn new(rank: Rank, suit: Suit) -> Self {
-        let prime = rank.prime();
+    /// Constructs a Card representing the specified rank and suit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::new(Rank::Ace, Suit::Spades);
+    /// assert_eq!(c.to_string(), "As");
+    /// ```
+    #[must_use]
+    pub const fn new(rank: Rank, suit: Suit) -> Self {
+        let prime = PRIMES[rank as usize];
         let rank_nibble = (rank as u32) << 8;
-        let suit_bit = suit.bit_mask();
-        let rank_bit = rank.bit_mask();
+        let suit_bit = 1u32 << (suit as u8 + 12);
+        let rank_bit = 1u32 << (rank as u8 + 16);
 
-        Card(prime | rank_nibble | suit_bit | rank_bit)
+        Self(prime | rank_nibble | suit_bit | rank_bit)
     }
 
-    /// Create a new card from raw rank and suit values.
-    pub fn from_raw(rank: u8, suit: u8) -> Self {
-        let rank = Rank::from_u8(rank).expect("Rank must be 0-12");
-        let suit = Suit::from_u8(suit).expect("Suit must be 0-3");
+    /// Construct a Card from raw numeric rank (0 = Two, …, 12 = Ace) and suit (0 = Clubs, …, 3 = Spades).
+    ///
+    /// # Panics
+    ///
+    /// Panics if `rank` is not between 0 and 12 inclusive, or if `suit` is not between 0 and 3 inclusive.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::from_raw(12, 3); // Ace of Spades
+    /// assert_eq!(c.index(), 51);
+    /// ```
+    #[must_use]
+    pub const fn from_raw(rank: u8, suit: u8) -> Self {
+        let Some(rank) = Rank::from_u8(rank) else {
+            panic!("Rank must be 0-12")
+        };
+        let Some(suit) = Suit::from_u8(suit) else {
+            panic!("Suit must be 0-3")
+        };
         Self::new(rank, suit)
     }
 
-    /// Alias for new().
-    pub fn from_rank_suit(rank: Rank, suit: Suit) -> Self {
+    /// Creates a `Card` value for the given rank and suit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::from_rank_suit(Rank::Ace, Suit::Spades);
+    /// assert_eq!(c.to_string(), "As");
+    /// ```
+    #[must_use]
+    pub const fn from_rank_suit(rank: Rank, suit: Suit) -> Self {
         Self::new(rank, suit)
     }
 
-    /// Parse a card from a 2-character string (e.g., "As", "Td", "2c").
+    /// Parse a playing card from a 2-character string like "As" or "Td".
+    ///
+    /// Returns `Some(Card)` when parsing succeeds, or `None` for invalid input.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::from_string("As").unwrap();
+    /// assert_eq!(c.to_string(), "As");
+    /// ```
+    #[must_use] 
     pub fn from_string(s: &str) -> Option<Self> {
         s.parse().ok()
     }
 
-    /// Create a card from its index (0-51).
+    /// Create the card corresponding to a 0-based index in the standard 52-card deck.
+    ///
+    /// The index maps ranks then suits (rank * 4 + suit); valid indices are 0 through 51.
+    /// Returns `None` if the index is outside that range.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // 0 => 2 of clubs ("2c"), 51 => Ace of spades ("As")
+    /// assert_eq!(Card::from_index(0).map(|c| c.to_string()), Some(String::from("2c")));
+    /// assert_eq!(Card::from_index(51).map(|c| c.to_string()), Some(String::from("As")));
+    /// assert!(Card::from_index(52).is_none());
+    /// ```
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
     pub fn from_index(index: usize) -> Option<Self> {
         if index >= 52 {
             return None;
@@ -250,80 +431,233 @@ impl Card {
         Some(Self::new(rank, suit))
     }
 
-    /// Generate all 52 cards in a standard deck.
-    pub fn all_cards() -> impl Iterator<Item = Card> {
+    /// Generates the 52 cards of a standard deck.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let cards: Vec<_> = all_cards().collect();
+    /// assert_eq!(cards.len(), 52);
+    /// assert_eq!(cards[0].index(), 0);
+    /// assert_eq!(cards[51].index(), 51);
+    /// ```
+    pub fn all_cards() -> impl Iterator<Item = Self> {
         (0..52).map(|i| Self::from_index(i).unwrap())
     }
 }
 
 /// Card - Accessors
 impl Card {
-    /// Get the raw 32-bit encoding.
-    #[inline]
-    pub fn raw(&self) -> u32 {
+    /// Accesses the card's underlying 32-bit Cactus Kev encoding.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let card = Card::from_rank_suit(Rank::Two, Suit::Clubs);
+    /// let raw: u32 = card.raw();
+    /// let _ = raw; // raw is the packed 32-bit card encoding
+    /// ``` 
+    pub const fn raw(&self) -> u32 {
         self.0
     }
 
-    /// Get the prime number component.
+    /// Extracts the prime-number component from a card's encoded representation.
+    ///
+    /// # Returns
+    ///
+    /// `u32` prime number associated with the card's rank (stored in bits 0–7).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::new(Rank::Ace, Suit::Spades);
+    /// assert_eq!(c.prime(), 41);
+    /// ```
     #[inline]
-    pub fn prime(&self) -> u32 {
+    #[must_use] 
+    pub const fn prime(&self) -> u32 {
         self.0 & 0xFF
     }
 
-    /// Get the rank as a u8 (0-12).
+    /// The card's rank as an index from 0 (Two) to 12 (Ace).
+    ///
+    /// # Returns
+    ///
+    /// `u8` in 0..=12 where 0 represents Two and 12 represents Ace.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::new(Rank::Two, Suit::Clubs);
+    /// assert_eq!(c.rank(), 0);
+    ///
+    /// let a = Card::new(Rank::Ace, Suit::Spades);
+    /// assert_eq!(a.rank(), 12);
+    /// ```
     #[inline]
-    pub fn rank(&self) -> u8 {
+    #[must_use] 
+    pub const fn rank(&self) -> u8 {
         ((self.0 >> 8) & 0xF) as u8
     }
 
-    /// Get the rank as an enum.
+    /// Return the card's rank as a `Rank` enum.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the card's internal rank value is not between 0 and 12.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::new(Rank::Ace, Suit::Spades);
+    /// assert_eq!(c.rank_enum(), Rank::Ace);
+    /// ```
     #[inline]
-    pub fn rank_enum(&self) -> Rank {
-        Rank::from_u8(self.rank()).unwrap()
+    #[must_use]
+    pub const fn rank_enum(&self) -> Rank {
+        match Rank::from_u8(self.rank()) {
+            Some(r) => r,
+            None => panic!("Invalid rank"),
+        }
     }
 
-    /// Get the suit bits (one-hot encoded, bits 12-15).
+    /// Extracts the four-bit one-hot suit mask from the card encoding.
+    ///
+    /// The returned value is the four-bit mask stored in bits 12–15 of the
+    /// card's internal representation, where each bit represents a suit.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::from_string("As").unwrap(); // Ace of spades
+    /// assert_eq!(c.suit_bits(), 0b1000);
+    /// ```
     #[inline]
-    pub fn suit_bits(&self) -> u32 {
+    #[must_use] 
+    pub const fn suit_bits(&self) -> u32 {
         (self.0 >> 12) & 0xF
     }
 
-    /// Get the rank bits (one-hot encoded, bits 16-28).
+    /// Extract the card's rank bitmask as a one-hot value.
+    ///
+    /// The returned `u32` contains a single bit set indicating the card's rank,
+    /// where the bit corresponds to the rank index (0 = Two, 12 = Ace). This value
+    /// is produced by taking the stored rank mask in bits 16–28 and shifting it
+    /// down so the rank bit occupies the low 0–12 positions.
+    ///
+    /// # Returns
+    ///
+    /// `u32` with the rank's one-hot bit set (mapped from bits 16–28 into bit 0).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::new(Rank::Ace, Suit::Spades);
+    /// assert_eq!(c.rank_bits(), 1 << 12);
+    /// ```
     #[inline]
-    pub fn rank_bits(&self) -> u32 {
+    #[must_use] 
+    pub const fn rank_bits(&self) -> u32 {
         self.0 >> 16
     }
 
-    /// Get the suit as a u8 (0-3).
+    /// The suit index of the card: 0 = Clubs, 1 = Diamonds, 2 = Hearts, 3 = Spades.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let two_clubs = Card::from_index(0).unwrap();
+    /// assert_eq!(two_clubs.suit(), 0);
+    ///
+    /// let ace_spades = Card::from_index(51).unwrap();
+    /// assert_eq!(ace_spades.suit(), 3);
+    /// ```
     #[inline]
-    pub fn suit(&self) -> u8 {
+    #[must_use]
+    #[allow(clippy::cast_possible_truncation)]
+    pub const fn suit(&self) -> u8 {
         self.suit_bits().trailing_zeros() as u8
     }
 
-    /// Get the suit as an enum.
+    /// Retrieve the card's suit as a `Suit` enum.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the card's internal suit value is not in 0..=3.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let c = Card::from_rank_suit(Rank::Ace, Suit::Spades);
+    /// assert_eq!(c.suit_enum(), Suit::Spades);
+    /// ```
     #[inline]
-    pub fn suit_enum(&self) -> Suit {
-        Suit::from_u8(self.suit()).unwrap()
+    #[must_use]
+    pub const fn suit_enum(&self) -> Suit {
+        match Suit::from_u8(self.suit()) {
+            Some(s) => s,
+            None => panic!("Invalid suit"),
+        }
     }
 
-    /// Get the unique index of this card (0-51).
+    /// Compute the card's unique index within a standard 52-card deck.
+    ///
+    /// The index is a value from 0 to 51 that uniquely identifies the card.
+    ///
+    /// # Returns
+    ///
+    /// The card's index in the range 0..=51.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crate::core::domain::entities::card::{Card, Rank, Suit};
+    ///
+    /// let two_clubs = Card::from_rank_suit(Rank::Two, Suit::Clubs);
+    /// assert_eq!(two_clubs.index(), 0);
+    ///
+    /// let ace_spades = Card::from_rank_suit(Rank::Ace, Suit::Spades);
+    /// assert_eq!(ace_spades.index(), 51);
+    /// ```
     #[inline]
-    pub fn index(&self) -> usize {
+    #[must_use]
+    pub const fn index(&self) -> usize {
         (self.rank() as usize) * 4 + (self.suit() as usize)
     }
 }
 
 /// Card - Operations
 impl Card {
-    /// Check if this card has the same rank as another.
-    #[inline]
-    pub fn same_rank(&self, other: &Card) -> bool {
+    /// Determines whether this card has the same rank as another.
+    ///
+    /// # Returns
+    /// `true` if both cards have the same rank, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let a = Card::from_string("As").unwrap();
+    /// let b = Card::from_string("Ah").unwrap();
+    /// assert!(a.same_rank(&b));
+    /// ```
+    pub const fn same_rank(&self, other: &Self) -> bool {
         self.rank() == other.rank()
     }
 
-    /// Check if this card has the same suit as another.
+    /// Determines whether this card and another have the same suit.
+    ///
+    /// Returns `true` if they have the same suit, `false` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let a = Card::from_string("As").unwrap();
+    /// let b = Card::from_string("Ks").unwrap();
+    /// assert!(a.same_suit(&b));
+    /// ```
     #[inline]
-    pub fn same_suit(&self, other: &Card) -> bool {
+    #[must_use]
+    pub const fn same_suit(&self, other: &Self) -> bool {
         self.suit_bits() == other.suit_bits()
     }
 }
@@ -337,6 +671,17 @@ impl fmt::Display for Card {
 impl FromStr for Card {
     type Err = ParseCardError;
 
+    /// Parses a two-character card code (rank followed by suit) into a `Card`, e.g. `"As"`, `"Td"`, or `"2c"`.
+    ///
+    /// Returns `Ok(Card)` when the input is a valid two-character representation, or a `ParseCardError`
+    /// indicating invalid length, rank, or suit on failure.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let card = "As".parse::<crate::core::domain::entities::card::Card>().unwrap();
+    /// assert_eq!(card.to_string(), "As");
+    /// ```
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         if s.len() != 2 {
             return Err(ParseCardError::InvalidLength);
@@ -349,13 +694,21 @@ impl FromStr for Card {
         let rank: Rank = rank_char.to_string().parse()?;
         let suit: Suit = suit_char.to_string().parse()?;
 
-        Ok(Card::new(rank, suit))
+        Ok(Self::new(rank, suit))
     }
 }
 
 impl From<(Rank, Suit)> for Card {
+    /// Converts a `(Rank, Suit)` pair into a `Card`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let card: Card = (Rank::Ace, Suit::Spades).into();
+    /// assert_eq!(card.to_string(), "As");
+    /// ```
     fn from((rank, suit): (Rank, Suit)) -> Self {
-        Card::from_rank_suit(rank, suit)
+        Self::from_rank_suit(rank, suit)
     }
 }
 

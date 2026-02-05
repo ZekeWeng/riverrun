@@ -16,25 +16,51 @@ pub struct CactusKevEvaluator {
     tables: HandRankTables,
 }
 
-/// CactusKevEvaluator - Constructors
+/// `CactusKevEvaluator` - Constructors
 impl CactusKevEvaluator {
-    /// Create a new evaluator with precomputed lookup tables.
+    /// Constructs a CactusKevEvaluator initialized with the default precomputed hand-rank tables.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let _eval = CactusKevEvaluator::new();
+    /// ```
+    #[must_use] 
     pub fn new() -> Self {
-        CactusKevEvaluator {
+        Self {
             tables: HandRankTables::new(),
         }
     }
 
-    /// Create an evaluator with pre-existing lookup tables.
-    pub fn with_tables(tables: HandRankTables) -> Self {
-        CactusKevEvaluator { tables }
+    /// Create an evaluator that uses the provided precomputed hand rank tables.
+    ///
+    /// The `tables` argument supplies the precomputed lookup data used for fast hand evaluation.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let tables = HandRankTables::new();
+    /// let evaluator = CactusKevEvaluator::with_tables(tables);
+    /// ```
+    #[must_use] 
+    pub const fn with_tables(tables: HandRankTables) -> Self {
+        Self { tables }
     }
 }
 
-/// CactusKevEvaluator - Accessors
+/// `CactusKevEvaluator` - Accessors
 impl CactusKevEvaluator {
-    /// Get a reference to the underlying lookup tables.
-    pub fn tables(&self) -> &HandRankTables {
+    /// Provides access to the evaluator's precomputed hand-rank lookup tables.
+    ///
+    /// Returns a reference to the underlying `HandRankTables`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let tables = CactusKevEvaluator::new().tables();
+    /// let _ = tables;
+    /// ``` 
+    pub const fn tables(&self) -> &HandRankTables {
         &self.tables
     }
 }
@@ -79,6 +105,18 @@ impl HandEvaluator for CactusKevEvaluator {
         Hand::new(best_cards, best_rank)
     }
 
+    /// Evaluate a five-card hand and return its canonical strength code.
+    ///
+    /// Computes the hand strength for exactly five `Card`s: if all five share a suit it returns
+    /// the flush-based lookup result; otherwise it looks up the hand by the product of card primes.
+    ///
+    /// # Returns
+    ///
+    /// The hand strength as a `u16` (lower is stronger).
+    ///
+    /// # Panics
+    ///
+    /// Panics if the prime-product lookup does not yield a known hand rank.
     #[inline]
     fn evaluate_5cards_fast(&self, cards: &[Card; 5]) -> u16 {
         let suit_and = cards[0].0 & cards[1].0 & cards[2].0 & cards[3].0 & cards[4].0 & 0xF000;
@@ -100,9 +138,27 @@ impl HandEvaluator for CactusKevEvaluator {
 
         self.tables
             .lookup_unique(prime_product)
-            .unwrap_or_else(|| panic!("Invalid hand with prime product: {}", prime_product))
+            .unwrap_or_else(|| panic!("Invalid hand with prime product: {prime_product}"))
     }
 
+    /// Evaluates seven cards by testing every five-card combination and returning the best hand rank.
+    ///
+    /// Tries each 5-card subset of the provided seven cards, computes its rank, and returns the lowest
+    /// (best) rank found. Evaluation stops early if a rank of `1` (royal flush) is encountered.
+    ///
+    /// # Returns
+    ///
+    /// `u16` containing the best hand rank found; lower values represent stronger hands (1 is a royal flush).
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// let evaluator = CactusKevEvaluator::new();
+    /// // `cards` should be a [Card; 7] containing the seven cards to evaluate.
+    /// let cards: [Card; 7] = /* construct seven cards */ unimplemented!();
+    /// let best_rank = evaluator.evaluate_7cards_fast(&cards);
+    /// assert!(best_rank >= 1);
+    /// ```
     fn evaluate_7cards_fast(&self, cards: &[Card; 7]) -> u16 {
         let mut best_rank = u16::MAX;
 

@@ -15,17 +15,28 @@ pub struct Game {
 
 /// Game - Constructors
 impl Game {
-    /// Create a new game with the specified number of players.
-    /// Automatically creates and shuffles the deck.
+    /// Constructs a new `Game` for the given number of players with a shuffled deck.
+    ///
+    /// The `num_players` must be between 2 and 10 inclusive; returns `None` if the value is out of range.
+    /// The returned `Game` has an initialized, shuffled deck, no dealt hole cards, and an empty board.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut rng = rand::rngs::StdRng::seed_from_u64(42);
+    /// let game = crate::core::domain::entities::game::Game::new(6, &mut rng).unwrap();
+    /// assert_eq!(game.num_players(), 6);
+    /// assert_eq!(game.remaining_cards(), 52);
+    /// ```
     pub fn new<R: rand::Rng>(num_players: usize, rng: &mut R) -> Option<Self> {
-        if num_players < 2 || num_players > 10 {
+        if !(2..=10).contains(&num_players) {
             return None;
         }
 
         let mut deck = Deck::new();
         deck.shuffle(rng);
 
-        Some(Game {
+        Some(Self {
             deck,
             num_players,
             hole_cards: Vec::new(),
@@ -33,13 +44,25 @@ impl Game {
         })
     }
 
-    /// Create a new game with a pre-configured deck (for testing).
+    /// Constructs a Game using the provided deck and player count.
+    ///
+    /// The `num_players` must be between 2 and 10 inclusive; the function returns `None` if the count is out of range.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::new();
+    /// let game = Game::with_deck(6, deck).expect("valid player count");
+    /// assert_eq!(game.num_players(), 6);
+    /// assert_eq!(game.remaining_cards(), 52);
+    /// ```
+    #[must_use] 
     pub fn with_deck(num_players: usize, deck: Deck) -> Option<Self> {
-        if num_players < 2 || num_players > 10 {
+        if !(2..=10).contains(&num_players) {
             return None;
         }
 
-        Some(Game {
+        Some(Self {
             deck,
             num_players,
             hole_cards: Vec::new(),
@@ -50,37 +73,111 @@ impl Game {
 
 /// Game - Accessors
 impl Game {
-    /// Get the number of players.
-    pub fn num_players(&self) -> usize {
+    /// Number of players configured for this game.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::new();
+    /// let game = Game::with_deck(6, deck).unwrap();
+    /// assert_eq!(game.num_players(), 6);
+    /// ```
+    #[must_use] 
+    pub const fn num_players(&self) -> usize {
         self.num_players
     }
 
     /// Get the current street.
-    pub fn street(&self) -> Street {
+    #[must_use]
+    pub const fn street(&self) -> Street {
         self.board.street()
     }
 
-    /// Get the board.
-    pub fn board(&self) -> &Board {
+    /// Access the game's current board.
+    ///
+    /// # Returns
+    ///
+    /// A reference to the game's current `Board`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let mut rng = make_rng();
+    /// let game = Game::new(2, &mut rng).unwrap();
+    /// let board_ref = game.board();
+    /// assert_eq!(board_ref.street(), Street::Preflop);
+    /// ```
+    #[must_use] 
+    pub const fn board(&self) -> &Board {
         &self.board
     }
 
-    /// Get hole cards for a specific player (0-indexed).
+    /// Retrieve the hole cards for the specified player.
+    ///
+    /// The `player` index is zero-based.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let deck = Deck::new();
+    /// let game = Game::with_deck(2, deck).unwrap();
+    /// // No hole cards dealt yet
+    /// assert!(game.player_hole_cards(0).is_none());
+    /// ```
+    #[must_use] 
     pub fn player_hole_cards(&self, player: usize) -> Option<&[Card; 2]> {
         self.hole_cards.get(player)
     }
 
-    /// Get all players' hole cards.
+    /// Provides a slice of all players' hole cards in seating order.
+    ///
+    /// Each element is a two-card array representing a player's hole cards; the slice is empty before hole cards are dealt.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // Construct a new two-player game and observe no hole cards before dealing.
+    /// let mut rng = rand::thread_rng();
+    /// let game = crate::core::domain::entities::game::Game::new(2, &mut rng).unwrap();
+    /// assert!(game.all_hole_cards().is_empty());
+    /// ```
+    #[must_use] 
     pub fn all_hole_cards(&self) -> &[[Card; 2]] {
         &self.hole_cards
     }
 
-    /// Get remaining cards in the deck.
-    pub fn remaining_cards(&self) -> usize {
+    /// Reports the number of cards remaining in the game's deck.
+    ///
+    /// # Returns
+    ///
+    /// The count of undealt cards left in the deck.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // create a new game with a full deck and two players
+    /// let game = Game::with_deck(2, Deck::new()).unwrap();
+    /// assert_eq!(game.remaining_cards(), 52);
+    /// ```
+    #[must_use]
+    pub const fn remaining_cards(&self) -> usize {
         self.deck.remaining()
     }
 
-    /// Check if the game is at showdown (river dealt).
+    /// Returns whether the game has reached showdown (the river has been dealt).
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use crate::core::domain::entities::game::Game;
+    /// use rand::rngs::StdRng;
+    /// use rand::SeedableRng;
+    ///
+    /// let mut rng = StdRng::seed_from_u64(0);
+    /// let game = Game::new(2, &mut rng).unwrap();
+    /// assert!(!game.is_showdown());
+    /// ```
+    #[must_use] 
     pub fn is_showdown(&self) -> bool {
         self.board.street() == Street::River
     }

@@ -13,18 +13,56 @@ pub struct ShowdownSolver<E: HandEvaluator> {
     evaluator: E,
 }
 
-/// ShowdownSolver - Constructors
+/// `ShowdownSolver` - Constructors
 impl<E: HandEvaluator> ShowdownSolver<E> {
-    /// Create a new solver with the given hand evaluator.
-    pub fn new(evaluator: E) -> Self {
-        ShowdownSolver { evaluator }
+    /// Creates a `ShowdownSolver` that uses the provided hand evaluator.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // `my_evaluator` must implement the `HandEvaluator` trait.
+    /// let my_evaluator = /* your evaluator here */;
+    /// let solver = ShowdownSolver::new(my_evaluator);
+    /// ```
+    pub const fn new(evaluator: E) -> Self {
+        Self { evaluator }
     }
 }
 
-/// ShowdownSolver - Accessors
+/// `ShowdownSolver` - Accessors
 impl<E: HandEvaluator> ShowdownSolver<E> {
-    /// Get a reference to the underlying evaluator.
-    pub fn evaluator(&self) -> &E {
+    /// Access the underlying hand evaluator.
+    
+    ///
+    
+    /// # Returns
+    
+    ///
+    
+    /// A reference to the evaluator held by this solver.
+    
+    ///
+    
+    /// # Examples
+    
+    ///
+    
+    /// ```
+    
+    /// use crate::core::domain::services::solving::showdown::ShowdownSolver;
+    
+    /// use crate::core::domain::poker::evaluators::CactusKevEvaluator;
+    
+    ///
+    
+    /// let evaluator = CactusKevEvaluator::new();
+    
+    /// let solver = ShowdownSolver::new(evaluator);
+    
+    /// let _ref = solver.evaluator();
+    
+    /// ```
+    pub const fn evaluator(&self) -> &E {
         &self.evaluator
     }
 }

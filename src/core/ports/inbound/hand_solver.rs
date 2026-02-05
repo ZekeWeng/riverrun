@@ -14,25 +14,62 @@ pub struct ShowdownResult {
     pub winner_count: usize,
 }
 
-/// ShowdownResult - Accessors
+/// `ShowdownResult` - Accessors
 impl ShowdownResult {
-    /// Get the winner indices as a slice.
+    /// Returns a slice of the winner indices in order, limited to `winner_count`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let result = ShowdownResult { winners: [3, 5, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 2 };
+    /// assert_eq!(result.winner_indices(), &[3, 5]);
+    /// ```
+    #[must_use] 
     pub fn winner_indices(&self) -> &[usize] {
         &self.winners[..self.winner_count]
     }
 
-    /// Check if there is a single winner.
-    pub fn is_single_winner(&self) -> bool {
+    /// Returns whether the result represents exactly one winner.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let res = ShowdownResult { winners: [0; MAX_PLAYERS], winner_count: 1 };
+    /// assert!(res.is_single_winner());
+    /// ```
+    #[must_use] 
+    pub const fn is_single_winner(&self) -> bool {
         self.winner_count == 1
     }
 
-    /// Check if there is a tie (multiple winners).
-    pub fn is_tie(&self) -> bool {
+    /// Indicates whether the showdown resulted in multiple winners.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // construct a ShowdownResult with two winners
+    /// let res = ShowdownResult { winners: [0usize; MAX_PLAYERS], winner_count: 2 };
+    /// assert!(res.is_tie());
+    /// ```
+    #[must_use] 
+    pub const fn is_tie(&self) -> bool {
         self.winner_count > 1
     }
 
-    /// Get the single winner index, if there is exactly one winner.
-    pub fn single_winner(&self) -> Option<usize> {
+    /// Returns the single winner's player index when there is exactly one winner.
+    ///
+    /// # Returns
+    ///
+    /// `Some(index)` if exactly one winner is present, `None` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let res = ShowdownResult { winners: [2, 0, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 1 };
+    /// assert_eq!(res.single_winner(), Some(2));
+    /// ```
+    #[must_use] 
+    pub const fn single_winner(&self) -> Option<usize> {
         if self.winner_count == 1 {
             Some(self.winners[0])
         } else {
@@ -52,25 +89,62 @@ pub struct ShowdownResultWithHands {
     pub hands: Vec<Hand>,
 }
 
-/// ShowdownResultWithHands - Accessors
+/// `ShowdownResultWithHands` - Accessors
 impl ShowdownResultWithHands {
-    /// Get the winner indices as a slice.
+    /// Returns a slice of the winner indices in order, limited to `winner_count`.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let result = ShowdownResult { winners: [3, 5, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 2 };
+    /// assert_eq!(result.winner_indices(), &[3, 5]);
+    /// ```
+    #[must_use] 
     pub fn winner_indices(&self) -> &[usize] {
         &self.winners[..self.winner_count]
     }
 
-    /// Check if there is a single winner.
-    pub fn is_single_winner(&self) -> bool {
+    /// Returns whether the result represents exactly one winner.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let res = ShowdownResult { winners: [0; MAX_PLAYERS], winner_count: 1 };
+    /// assert!(res.is_single_winner());
+    /// ```
+    #[must_use] 
+    pub const fn is_single_winner(&self) -> bool {
         self.winner_count == 1
     }
 
-    /// Check if there is a tie (multiple winners).
-    pub fn is_tie(&self) -> bool {
+    /// Indicates whether the showdown resulted in multiple winners.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// // construct a ShowdownResult with two winners
+    /// let res = ShowdownResult { winners: [0usize; MAX_PLAYERS], winner_count: 2 };
+    /// assert!(res.is_tie());
+    /// ```
+    #[must_use] 
+    pub const fn is_tie(&self) -> bool {
         self.winner_count > 1
     }
 
-    /// Get the single winner index, if there is exactly one winner.
-    pub fn single_winner(&self) -> Option<usize> {
+    /// Returns the single winner's player index when there is exactly one winner.
+    ///
+    /// # Returns
+    ///
+    /// `Some(index)` if exactly one winner is present, `None` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// let res = ShowdownResult { winners: [2, 0, 0, 0, 0, 0, 0, 0, 0, 0], winner_count: 1 };
+    /// assert_eq!(res.single_winner(), Some(2));
+    /// ```
+    #[must_use] 
+    pub const fn single_winner(&self) -> Option<usize> {
         if self.winner_count == 1 {
             Some(self.winners[0])
         } else {
@@ -78,7 +152,21 @@ impl ShowdownResultWithHands {
         }
     }
 
-    /// Get the winning hand(s).
+    /// Get references to the evaluated hand(s) belonging to the winning player(s).
+    ///
+    /// The returned vector contains references to the `Hand` instances for each index
+    /// reported by `winner_indices()`, in the same order.
+    ///
+    /// # Examples
+    ///
+    /// ```ignore
+    /// let winners = result.winning_hands();
+    /// for hand in winners {
+    ///     // inspect each winning hand
+    ///     println!("{:?}", hand);
+    /// }
+    /// ```
+    #[must_use] 
     pub fn winning_hands(&self) -> Vec<&Hand> {
         self.winner_indices()
             .iter()
@@ -86,7 +174,23 @@ impl ShowdownResultWithHands {
             .collect()
     }
 
-    /// Get a player's hand by index.
+    /// Get the evaluated hand for the player at the given zero-based index, if present.
+    ///
+    /// # Parameters
+    /// - `player_idx` — zero-based index of the player whose hand to retrieve.
+    ///
+    /// # Returns
+    /// `Some(&Hand)` with the player's evaluated hand when present, `None` otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// // Assuming `result` is a ShowdownResultWithHands:
+    /// // let result: ShowdownResultWithHands = ...;
+    /// // let maybe_hand = result.hand(0);
+    /// // assert!(maybe_hand.is_none() || maybe_hand.is_some());
+    /// ```
+    #[must_use] 
     pub fn hand(&self, player_idx: usize) -> Option<&Hand> {
         self.hands.get(player_idx)
     }

@@ -12,8 +12,9 @@ pub struct Board {
 /// Constructors
 impl Board {
     /// Create an empty board (preflop).
-    pub fn new() -> Self {
-        Board {
+    #[must_use] 
+    pub const fn new() -> Self {
+        Self {
             cards: Vec::new(),
             street: Street::Preflop,
         }
@@ -21,6 +22,7 @@ impl Board {
 
     /// Create a board with the given cards.
     /// Returns None if invalid card count (must be 0, 3, 4, or 5).
+    #[must_use] 
     pub fn with_cards(cards: Vec<Card>) -> Option<Self> {
         let street = match cards.len() {
             0 => Street::Preflop,
@@ -29,19 +31,21 @@ impl Board {
             5 => Street::River,
             _ => return None,
         };
-        Some(Board { cards, street })
+        Some(Self { cards, street })
     }
 }
 
 /// Accessors
 impl Board {
     /// Get all cards on the board.
+    #[must_use] 
     pub fn cards(&self) -> &[Card] {
         &self.cards
     }
 
     /// Get the board as a 5-card array (only valid when complete).
     /// Returns None if the board doesn't have exactly 5 cards.
+    #[must_use] 
     pub fn as_array(&self) -> Option<[Card; 5]> {
         if self.cards.len() == 5 {
             Some([
@@ -57,27 +61,32 @@ impl Board {
     }
 
     /// Get a specific card by index.
+    #[must_use] 
     pub fn card(&self, index: usize) -> Option<Card> {
         self.cards.get(index).copied()
     }
 
     /// Get the number of cards on the board.
-    pub fn len(&self) -> usize {
+    #[must_use] 
+    pub const fn len(&self) -> usize {
         self.cards.len()
     }
 
     /// Check if the board is empty (preflop).
-    pub fn is_empty(&self) -> bool {
+    #[must_use] 
+    pub const fn is_empty(&self) -> bool {
         self.cards.is_empty()
     }
 
     /// Check if the board is complete (river dealt).
+    #[must_use] 
     pub fn is_complete(&self) -> bool {
         self.street == Street::River
     }
 
     /// Get the current street.
-    pub fn street(&self) -> Street {
+    #[must_use] 
+    pub const fn street(&self) -> Street {
         self.street
     }
 }
@@ -137,7 +146,7 @@ impl std::fmt::Display for Board {
         if self.cards.is_empty() {
             return write!(f, "[]");
         }
-        let cards: Vec<String> = self.cards.iter().map(|c| c.to_string()).collect();
+        let cards: Vec<String> = self.cards.iter().map(std::string::ToString::to_string).collect();
         write!(f, "[{}]", cards.join(" "))
     }
 }
@@ -154,10 +163,10 @@ pub enum Street {
 impl std::fmt::Display for Street {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Street::Preflop => write!(f, "Preflop"),
-            Street::Flop => write!(f, "Flop"),
-            Street::Turn => write!(f, "Turn"),
-            Street::River => write!(f, "River"),
+            Self::Preflop => write!(f, "Preflop"),
+            Self::Flop => write!(f, "Flop"),
+            Self::Turn => write!(f, "Turn"),
+            Self::River => write!(f, "River"),
         }
     }
 }

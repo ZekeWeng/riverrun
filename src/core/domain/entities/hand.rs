@@ -20,38 +20,40 @@ pub enum HandRank {
     StraightFlush = 8,
 }
 
-/// HandRank - Constructors
+/// `HandRank` - Constructors
 impl HandRank {
-    /// Create a HandRank from a numeric strength (1-7462).
-    pub fn from_strength(strength: u16) -> Self {
+    /// Create a `HandRank` from a numeric strength (1-7462).
+    #[must_use] 
+    pub const fn from_strength(strength: u16) -> Self {
         match strength {
-            1..=10 => HandRank::StraightFlush,
-            11..=166 => HandRank::FourOfAKind,
-            167..=322 => HandRank::FullHouse,
-            323..=1599 => HandRank::Flush,
-            1600..=1609 => HandRank::Straight,
-            1610..=2467 => HandRank::ThreeOfAKind,
-            2468..=3325 => HandRank::TwoPair,
-            3326..=6185 => HandRank::OnePair,
-            _ => HandRank::HighCard,
+            1..=10 => Self::StraightFlush,
+            11..=166 => Self::FourOfAKind,
+            167..=322 => Self::FullHouse,
+            323..=1599 => Self::Flush,
+            1600..=1609 => Self::Straight,
+            1610..=2467 => Self::ThreeOfAKind,
+            2468..=3325 => Self::TwoPair,
+            3326..=6185 => Self::OnePair,
+            _ => Self::HighCard,
         }
     }
 }
 
-/// HandRank - Accessors
+/// `HandRank` - Accessors
 impl HandRank {
     /// Get the display name of the hand rank.
-    pub fn name(&self) -> &'static str {
+    #[must_use] 
+    pub const fn name(&self) -> &'static str {
         match self {
-            HandRank::HighCard => "High Card",
-            HandRank::OnePair => "One Pair",
-            HandRank::TwoPair => "Two Pair",
-            HandRank::ThreeOfAKind => "Three of a Kind",
-            HandRank::Straight => "Straight",
-            HandRank::Flush => "Flush",
-            HandRank::FullHouse => "Full House",
-            HandRank::FourOfAKind => "Four of a Kind",
-            HandRank::StraightFlush => "Straight Flush",
+            Self::HighCard => "High Card",
+            Self::OnePair => "One Pair",
+            Self::TwoPair => "Two Pair",
+            Self::ThreeOfAKind => "Three of a Kind",
+            Self::Straight => "Straight",
+            Self::Flush => "Flush",
+            Self::FullHouse => "Full House",
+            Self::FourOfAKind => "Four of a Kind",
+            Self::StraightFlush => "Straight Flush",
         }
     }
 }
@@ -76,9 +78,10 @@ pub struct Hand {
 /// Hand - Constructors
 impl Hand {
     /// Create a new hand from cards and strength.
-    pub fn new(cards: [Card; 5], strength: u16) -> Self {
+    #[must_use]
+    pub const fn new(cards: [Card; 5], strength: u16) -> Self {
         let rank = HandRank::from_strength(strength);
-        Hand {
+        Self {
             cards,
             rank,
             strength,
@@ -89,76 +92,91 @@ impl Hand {
 /// Hand - Accessors
 impl Hand {
     /// Get the 5 cards that form this hand.
-    pub fn cards(&self) -> &[Card; 5] {
+    #[must_use] 
+    pub const fn cards(&self) -> &[Card; 5] {
         &self.cards
     }
 
     /// Get a specific card by index (0-4).
-    pub fn card(&self, index: usize) -> Card {
+    #[must_use] 
+    pub const fn card(&self, index: usize) -> Card {
         self.cards[index]
     }
 
     /// Get the hand category (e.g., Flush, Full House).
-    pub fn rank(&self) -> HandRank {
+    #[must_use] 
+    pub const fn rank(&self) -> HandRank {
         self.rank
     }
 
     /// Get the numeric strength (1 = best, 7462 = worst).
-    pub fn strength(&self) -> u16 {
+    #[must_use] 
+    pub const fn strength(&self) -> u16 {
         self.strength
     }
 
     /// Check if this hand is a specific rank.
+    #[must_use] 
     pub fn is_rank(&self, rank: HandRank) -> bool {
         self.rank == rank
     }
 
     /// Check if this hand is a straight flush (includes royal flush).
+    #[must_use] 
     pub fn is_straight_flush(&self) -> bool {
         self.rank == HandRank::StraightFlush
     }
 
     /// Check if this hand is a royal flush (best possible hand).
-    pub fn is_royal_flush(&self) -> bool {
+    #[must_use] 
+    pub const fn is_royal_flush(&self) -> bool {
         self.strength == 1
     }
 
     /// Check if this hand is four of a kind.
+    #[must_use] 
     pub fn is_four_of_a_kind(&self) -> bool {
         self.rank == HandRank::FourOfAKind
     }
 
     /// Check if this hand is a full house.
+    #[must_use] 
     pub fn is_full_house(&self) -> bool {
         self.rank == HandRank::FullHouse
     }
 
     /// Check if this hand is a flush.
+    #[must_use] 
     pub fn is_flush(&self) -> bool {
         self.rank == HandRank::Flush
     }
 
     /// Check if this hand is a straight.
+    #[must_use] 
     pub fn is_straight(&self) -> bool {
         self.rank == HandRank::Straight
     }
 
     /// Check if this hand is three of a kind.
+    #[must_use] 
     pub fn is_three_of_a_kind(&self) -> bool {
         self.rank == HandRank::ThreeOfAKind
     }
 
     /// Check if this hand is two pair.
+    #[must_use] 
     pub fn is_two_pair(&self) -> bool {
         self.rank == HandRank::TwoPair
     }
 
     /// Check if this hand is one pair.
+    #[must_use] 
     pub fn is_one_pair(&self) -> bool {
         self.rank == HandRank::OnePair
     }
 
     /// Check if this hand is high card only.
+    #[must_use] 
     pub fn is_high_card(&self) -> bool {
         self.rank == HandRank::HighCard
     }
@@ -167,17 +185,20 @@ impl Hand {
 /// Hand - Operations
 impl Hand {
     /// Check if this hand beats another hand.
-    pub fn beats(&self, other: &Hand) -> bool {
+    #[must_use] 
+    pub const fn beats(&self, other: &Self) -> bool {
         self.strength < other.strength
     }
 
     /// Check if this hand ties with another hand.
-    pub fn ties(&self, other: &Hand) -> bool {
+    #[must_use] 
+    pub const fn ties(&self, other: &Self) -> bool {
         self.strength == other.strength
     }
 
     /// Check if this hand loses to another hand.
-    pub fn loses_to(&self, other: &Hand) -> bool {
+    #[must_use] 
+    pub const fn loses_to(&self, other: &Self) -> bool {
         self.strength > other.strength
     }
 }
@@ -212,7 +233,7 @@ impl fmt::Display for Hand {
 
 impl From<([Card; 5], u16)> for Hand {
     fn from((cards, strength): ([Card; 5], u16)) -> Self {
-        Hand::new(cards, strength)
+        Self::new(cards, strength)
     }
 }
 

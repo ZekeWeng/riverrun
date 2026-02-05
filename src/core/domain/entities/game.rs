@@ -18,14 +18,14 @@ impl Game {
     /// Create a new game with the specified number of players.
     /// Automatically creates and shuffles the deck.
     pub fn new<R: rand::Rng>(num_players: usize, rng: &mut R) -> Option<Self> {
-        if num_players < 2 || num_players > 10 {
+        if !(2..=10).contains(&num_players) {
             return None;
         }
 
         let mut deck = Deck::new();
         deck.shuffle(rng);
 
-        Some(Game {
+        Some(Self {
             deck,
             num_players,
             hole_cards: Vec::new(),
@@ -34,12 +34,13 @@ impl Game {
     }
 
     /// Create a new game with a pre-configured deck (for testing).
+    #[must_use] 
     pub fn with_deck(num_players: usize, deck: Deck) -> Option<Self> {
-        if num_players < 2 || num_players > 10 {
+        if !(2..=10).contains(&num_players) {
             return None;
         }
 
-        Some(Game {
+        Some(Self {
             deck,
             num_players,
             hole_cards: Vec::new(),
@@ -51,36 +52,43 @@ impl Game {
 /// Game - Accessors
 impl Game {
     /// Get the number of players.
-    pub fn num_players(&self) -> usize {
+    #[must_use] 
+    pub const fn num_players(&self) -> usize {
         self.num_players
     }
 
     /// Get the current street.
-    pub fn street(&self) -> Street {
+    #[must_use]
+    pub const fn street(&self) -> Street {
         self.board.street()
     }
 
     /// Get the board.
-    pub fn board(&self) -> &Board {
+    #[must_use] 
+    pub const fn board(&self) -> &Board {
         &self.board
     }
 
     /// Get hole cards for a specific player (0-indexed).
+    #[must_use] 
     pub fn player_hole_cards(&self, player: usize) -> Option<&[Card; 2]> {
         self.hole_cards.get(player)
     }
 
     /// Get all players' hole cards.
+    #[must_use] 
     pub fn all_hole_cards(&self) -> &[[Card; 2]] {
         &self.hole_cards
     }
 
     /// Get remaining cards in the deck.
-    pub fn remaining_cards(&self) -> usize {
+    #[must_use]
+    pub const fn remaining_cards(&self) -> usize {
         self.deck.remaining()
     }
 
     /// Check if the game is at showdown (river dealt).
+    #[must_use] 
     pub fn is_showdown(&self) -> bool {
         self.board.street() == Street::River
     }

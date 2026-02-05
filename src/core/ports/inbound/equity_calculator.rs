@@ -13,13 +13,15 @@ pub struct EquityResult {
     samples: u64,
 }
 
-/// EquityResult - Constructors
+/// `EquityResult` - Constructors
 impl EquityResult {
     /// Create a new equity result from raw counts.
+    #[must_use]
+    #[allow(clippy::cast_precision_loss)]
     pub fn from_counts(wins: u64, ties: u64, losses: u64, num_opponents: usize) -> Self {
         let total = wins + ties + losses;
         if total == 0 {
-            return EquityResult {
+            return Self {
                 equity: 0.0,
                 win_rate: 0.0,
                 tie_rate: 0.0,
@@ -37,7 +39,7 @@ impl EquityResult {
         let tie_share = tie_rate / (num_opponents + 1) as f64;
         let equity = win_rate + tie_share;
 
-        EquityResult {
+        Self {
             equity,
             win_rate,
             tie_rate,
@@ -47,50 +49,59 @@ impl EquityResult {
     }
 }
 
-/// EquityResult - Accessors
+/// `EquityResult` - Accessors
 impl EquityResult {
     /// Get overall equity (probability of winning or getting a share of ties).
-    pub fn equity(&self) -> f64 {
+    #[must_use] 
+    pub const fn equity(&self) -> f64 {
         self.equity
     }
 
     /// Get equity as a percentage (0-100).
+    #[must_use] 
     pub fn equity_percent(&self) -> f64 {
         self.equity * 100.0
     }
 
     /// Get pure win rate.
-    pub fn win_rate(&self) -> f64 {
+    #[must_use] 
+    pub const fn win_rate(&self) -> f64 {
         self.win_rate
     }
 
     /// Get win rate as a percentage (0-100).
+    #[must_use] 
     pub fn win_percent(&self) -> f64 {
         self.win_rate * 100.0
     }
 
     /// Get tie rate.
-    pub fn tie_rate(&self) -> f64 {
+    #[must_use] 
+    pub const fn tie_rate(&self) -> f64 {
         self.tie_rate
     }
 
     /// Get tie rate as a percentage (0-100).
+    #[must_use] 
     pub fn tie_percent(&self) -> f64 {
         self.tie_rate * 100.0
     }
 
     /// Get lose rate.
-    pub fn lose_rate(&self) -> f64 {
+    #[must_use] 
+    pub const fn lose_rate(&self) -> f64 {
         self.lose_rate
     }
 
     /// Get lose rate as a percentage (0-100).
+    #[must_use] 
     pub fn lose_percent(&self) -> f64 {
         self.lose_rate * 100.0
     }
 
     /// Get the number of samples/matchups evaluated.
-    pub fn samples(&self) -> u64 {
+    #[must_use] 
+    pub const fn samples(&self) -> u64 {
         self.samples
     }
 }

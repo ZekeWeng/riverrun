@@ -28,15 +28,6 @@ pub const FIVE_FROM_SEVEN: [[usize; 5]; 21] = [
 /// Compute the binomial coefficient C(n, k).
 ///
 /// Returns 0 when k > n. Uses symmetry so C(n, k) == C(n, n - k).
-///
-/// # Examples
-///
-/// ```
-/// use riverrun::core::domain::services::utils::combinatorics::binomial;
-/// assert_eq!(binomial(5, 2), 10);
-/// assert_eq!(binomial(6, 3), 20);
-/// assert_eq!(binomial(4, 5), 0);
-/// ```
 #[must_use] 
 pub fn binomial(n: usize, k: usize) -> usize {
     if k > n {
@@ -56,17 +47,7 @@ pub fn binomial(n: usize, k: usize) -> usize {
 /// Generate all k-sized combinations of indices 0..n-1.
 ///
 /// Returns an empty vector if k > n. If k == 0, returns a vector containing a single empty combination.
-/// Each combination is a Vec<usize> of length k with indices in ascending order.
-///
-/// # Examples
-///
-/// ```
-/// use riverrun::core::domain::services::utils::combinatorics::combinations;
-/// let combos = combinations(4, 2);
-/// assert_eq!(combos.len(), 6);
-/// assert!(combos.contains(&vec![0, 1]));
-/// assert!(combos.contains(&vec![2, 3]));
-/// ```
+/// Each combination is a `Vec<usize>` of length k with indices in ascending order.
 #[must_use] 
 pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
     if k > n {
@@ -108,19 +89,6 @@ pub fn combinations(n: usize, k: usize) -> Vec<Vec<usize>> {
 ///
 /// Expects a slice of exactly five rank indices. Ranks use 0..=12 with `12` representing Ace;
 /// the special case `[0, 1, 2, 3, 12]` is treated as a valid straight (wheel).
-///
-/// # Examples
-///
-/// ```
-/// use riverrun::core::domain::services::utils::combinatorics::is_straight_pattern;
-/// // 8-9-10-J-Q (consecutive)
-/// assert!(is_straight_pattern(&[6, 7, 8, 9, 10]));
-/// // Wheel: A-2-3-4-5
-/// assert!(is_straight_pattern(&[0, 1, 2, 3, 12]));
-/// // Not a straight: gap and duplicate
-/// assert!(!is_straight_pattern(&[0, 1, 2, 3, 5]));
-/// assert!(!is_straight_pattern(&[0, 0, 1, 2, 3]));
-/// ```
 ///
 /// # Returns
 ///

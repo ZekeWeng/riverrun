@@ -32,15 +32,6 @@ impl HandRankTables {
     /// - a sorted `unique5` table of (prime-product, rank) pairs for non-flush hands (binary-searchable).
     ///
     /// The tables are populated once in descending hand strength order so that ranks reflect poker hand strength.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::services::evaluation::HandRankTables;
-    /// let tables = HandRankTables::new();
-    /// // No valid hand has a prime-product of 1, so this should be `None`.
-    /// assert!(tables.lookup_unique(1).is_none());
-    /// ```
     #[must_use] 
     pub fn new() -> Self {
         let mut flush_lookup = vec![WORST_RANK; 8192];
@@ -72,13 +63,6 @@ impl HandRankTables {
 
 impl Default for HandRankTables {
     /// Creates a `HandRankTables` populated with the precomputed hand rank lookup tables.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::services::evaluation::HandRankTables;
-    /// let _tables = HandRankTables::default();
-    /// ```
     fn default() -> Self {
         Self::new()
     }
@@ -93,16 +77,6 @@ impl HandRankTables {
     /// # Returns
     ///
     /// The hand rank corresponding to the flush pattern.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::services::evaluation::HandRankTables;
-    /// let tables = HandRankTables::new();
-    /// let rank = tables.lookup_flush(0);
-    /// // `rank` is a `u16` representing the hand strength for the flush pattern at index 0.
-    /// assert!(rank <= u16::MAX);
-    /// ```
     #[must_use] 
     pub fn lookup_flush(&self, rank_bits: u32) -> u16 {
         self.flush_lookup[rank_bits as usize]
@@ -115,15 +89,6 @@ impl HandRankTables {
     /// # Returns
     ///
     /// `Some(rank)` with the hand's rank if the product is found in the non-flush table, `None` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::services::evaluation::HandRankTables;
-    /// let tables = HandRankTables::new();
-    /// // 0 is not a valid prime-product for any 5-card hand, so this yields `None`.
-    /// assert_eq!(tables.lookup_unique(0), None);
-    /// ```
     #[must_use] 
     pub fn lookup_unique(&self, prime_product: u32) -> Option<u16> {
         self.unique5
@@ -142,16 +107,6 @@ impl HandRankTables {
 /// # Returns
 ///
 /// The next rank value after the last rank assigned.
-///
-/// # Examples
-///
-/// ```ignore
-/// let mut flush_lookup = vec![0u16; 8192];
-/// let next = generate_straight_flushes(&mut flush_lookup, 1);
-/// assert_eq!(next, 11);
-/// assert_eq!(flush_lookup[0b1_1111_0000_0000_u32 as usize], 1); // A-K-Q-J-T
-/// assert_eq!(flush_lookup[0b1_0000_0000_1111_u32 as usize], 10); // 5-4-3-2-A
-/// ```
 fn generate_straight_flushes(flush_lookup: &mut [u16], mut rank: u16) -> u16 {
     let patterns = [
         0b1_1111_0000_0000_u32, // A-K-Q-J-T

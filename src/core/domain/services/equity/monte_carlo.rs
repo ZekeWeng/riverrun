@@ -21,14 +21,6 @@ pub struct MonteCarloEquityCalculator<E: HandEvaluator> {
 /// `MonteCarloEquityCalculator` - Constructors
 impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     /// Creates a `MonteCarloEquityCalculator` using the given evaluator and the module's default sample count.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let eval = CactusKevEvaluator::new();
-    /// let calc = MonteCarloEquityCalculator::new(eval);
-    /// assert!(calc.default_samples() > 0);
-    /// ```
     pub const fn new(evaluator: E) -> Self {
         Self {
             evaluator,
@@ -39,14 +31,6 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     /// Creates a `MonteCarloEquityCalculator` with a custom default number of Monte Carlo samples.
     ///
     /// The `default_samples` value is used by calculation methods when no explicit sample count is provided.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // Assuming `evaluator` implements `HandEvaluator`
-    /// let calc = MonteCarloEquityCalculator::with_samples(evaluator, 5_000);
-    /// assert_eq!(calc.default_samples(), 5_000);
-    /// ```
     pub const fn with_samples(evaluator: E, default_samples: u32) -> Self {
         Self {
             evaluator,
@@ -63,18 +47,6 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     }
 
     /// Default number of Monte Carlo iterations used when a sample count is not provided.
-    ///
-    /// # Returns
-    ///
-    /// The default number of samples.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // assuming `evaluator` implements `HandEvaluator`
-    /// let calc = MonteCarloEquityCalculator::with_samples(evaluator, 1000);
-    /// assert_eq!(calc.default_samples(), 1000);
-    /// ```
     pub const fn default_samples(&self) -> u32 {
         self.default_samples
     }
@@ -83,19 +55,6 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
 /// `MonteCarloEquityCalculator` - Operations
 impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     /// Builds a deck containing all cards that are not present in the given hole cards and board.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let hole = HoleCards::new(Card::AceSpades, Card::AceHearts);
-    /// let board = Board::empty();
-    /// let deck = remaining_deck(hole, &board);
-    /// // pocket aces removed from the deck
-    /// assert!(!deck.contains(&Card::AceSpades));
-    /// assert!(!deck.contains(&Card::AceHearts));
-    /// // full deck minus two hole cards
-    /// assert_eq!(deck.len(), 50);
-    /// ```
     fn remaining_deck(hole_cards: HoleCards, board: &Board) -> Deck {
         let mut dead_cards = vec![hole_cards.first(), hole_cards.second()];
         dead_cards.extend_from_slice(board.cards());
@@ -119,18 +78,6 @@ impl<E: HandEvaluator> EquityCalculator for MonteCarloEquityCalculator<E> {
     /// The function completes the board to five cards, samples opponent hole cards and remaining
     /// runout cards from the unseen deck, and returns aggregate win/tie/loss counts for the provided
     /// sample count.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// // Example (illustrative):
-    /// // let evaluator = CactusKevEvaluator::new();
-    /// // let calc = MonteCarloEquityCalculator::with_samples(evaluator, 1000);
-    /// // let hole = HoleCards::new(Card::AceSpades, Card::AceHearts);
-    /// // let board = Board::empty();
-    /// // let result = calc.calculate_sampled(&hole, &board, 1, 500);
-    /// // assert_eq!(result.samples(), 500);
-    /// ```
     fn calculate_sampled(
         &self,
         hole_cards: &HoleCards,
@@ -166,14 +113,6 @@ impl<E: HandEvaluator> MonteCarloEquityCalculator<E> {
     ///
     /// An `EquityResult` constructed from the accumulated win, tie, and loss counts for the hero against
     /// `num_opponents`.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let calc = MonteCarloEquityCalculator::new(evaluator);
-    /// let result = calc.simulate(hole_cards, &board_cards, &remaining_deck, 2, 3, 10_000);
-    /// println!("wins: {}, ties: {}, losses: {}", result.wins(), result.ties(), result.losses());
-    /// ```
     fn simulate(
         &self,
         hole_cards: HoleCards,

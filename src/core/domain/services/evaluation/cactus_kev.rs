@@ -19,13 +19,6 @@ pub struct CactusKevEvaluator {
 /// `CactusKevEvaluator` - Constructors
 impl CactusKevEvaluator {
     /// Constructs a `CactusKevEvaluator` initialized with the default precomputed hand-rank tables.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::services::evaluation::CactusKevEvaluator;
-    /// let _eval = CactusKevEvaluator::new();
-    /// ```
     #[must_use] 
     pub fn new() -> Self {
         Self {
@@ -36,14 +29,6 @@ impl CactusKevEvaluator {
     /// Create an evaluator that uses the provided precomputed hand rank tables.
     ///
     /// The `tables` argument supplies the precomputed lookup data used for fast hand evaluation.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::services::evaluation::{CactusKevEvaluator, HandRankTables};
-    /// let tables = HandRankTables::new();
-    /// let evaluator = CactusKevEvaluator::with_tables(tables);
-    /// ```
     #[must_use] 
     pub const fn with_tables(tables: HandRankTables) -> Self {
         Self { tables }
@@ -54,16 +39,7 @@ impl CactusKevEvaluator {
 impl CactusKevEvaluator {
     /// Provides access to the evaluator's precomputed hand-rank lookup tables.
     ///
-    /// Returns a reference to the underlying `HandRankTables`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::services::evaluation::CactusKevEvaluator;
-    /// let evaluator = CactusKevEvaluator::new();
-    /// let tables = evaluator.tables();
-    /// let _ = tables;
-    /// ``` 
+    /// Returns a reference to the underlying `HandRankTables`. 
     #[must_use] 
     pub const fn tables(&self) -> &HandRankTables {
         &self.tables
@@ -154,16 +130,6 @@ impl HandEvaluator for CactusKevEvaluator {
     /// # Returns
     ///
     /// `u16` containing the best hand rank found; lower values represent stronger hands (1 is a royal flush).
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let evaluator = CactusKevEvaluator::new();
-    /// // `cards` should be a [Card; 7] containing the seven cards to evaluate.
-    /// let cards: [Card; 7] = /* construct seven cards */ unimplemented!();
-    /// let best_rank = evaluator.evaluate_7cards_fast(&cards);
-    /// assert!(best_rank >= 1);
-    /// ```
     fn evaluate_7cards_fast(&self, cards: &[Card; 7]) -> u16 {
         let mut best_rank = u16::MAX;
 

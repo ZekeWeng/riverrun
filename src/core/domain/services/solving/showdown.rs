@@ -16,14 +16,6 @@ pub struct ShowdownSolver<E: HandEvaluator> {
 /// `ShowdownSolver` - Constructors
 impl<E: HandEvaluator> ShowdownSolver<E> {
     /// Creates a `ShowdownSolver` that uses the provided hand evaluator.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // `my_evaluator` must implement the `HandEvaluator` trait.
-    /// let my_evaluator = /* your evaluator here */;
-    /// let solver = ShowdownSolver::new(my_evaluator);
-    /// ```
     pub const fn new(evaluator: E) -> Self {
         Self { evaluator }
     }
@@ -36,14 +28,6 @@ impl<E: HandEvaluator> ShowdownSolver<E> {
     /// # Returns
     ///
     /// A reference to the evaluator held by this solver.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let evaluator = CactusKevEvaluator::new();
-    /// let solver = ShowdownSolver::new(evaluator);
-    /// let _ref = solver.evaluator();
-    /// ```
     pub const fn evaluator(&self) -> &E {
         &self.evaluator
     }

@@ -35,21 +35,10 @@ impl HandRank {
     /// - 3326..=6185 => `OnePair`
     /// - values above 6185 => `HighCard`
     ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::hand::HandRank;
-    /// let rank = HandRank::from_strength(1);
-    /// assert_eq!(rank, HandRank::StraightFlush);
-    ///
-    /// let rank = HandRank::from_strength(5000);
-    /// assert_eq!(rank, HandRank::OnePair);
-    /// ```
-    ///
     /// # Returns
     ///
     /// `HandRank` corresponding to the provided strength.
-    #[must_use] 
+    #[must_use]
     pub const fn from_strength(strength: u16) -> Self {
         match strength {
             1..=10 => Self::StraightFlush,
@@ -70,15 +59,7 @@ impl HandRank {
     /// Display name for the hand rank.
     ///
     /// Returns the human-readable name for the rank (for example, "Straight Flush").
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::hand::HandRank;
-    /// assert_eq!(HandRank::StraightFlush.name(), "Straight Flush");
-    /// assert_eq!(HandRank::HighCard.name(), "High Card");
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn name(&self) -> &'static str {
         match self {
             Self::HighCard => "High Card",
@@ -116,16 +97,6 @@ impl Hand {
     /// Constructs a `Hand` from five `Card`s and a numeric hand `strength`.
     ///
     /// The provided `strength` is used to determine the hand's `HandRank`.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // Example assumes `Card` variants and `Hand` are in scope.
-    /// let cards = [Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts];
-    /// let hand = Hand::new(cards, 1); // strength 1 represents a royal straight flush
-    /// assert_eq!(hand.strength(), 1);
-    /// assert!(hand.is_royal_flush());
-    /// ```
     #[must_use]
     pub const fn new(cards: [Card; 5], strength: u16) -> Self {
         let rank = HandRank::from_strength(strength);
@@ -144,15 +115,7 @@ impl Hand {
     /// # Returns
     ///
     /// `&[Card; 5]` — a reference to the array of five cards that form this hand.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // Given a `hand: Hand`
-    /// let cards = hand.cards();
-    /// assert_eq!(cards.len(), 5);
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn cards(&self) -> &[Card; 5] {
         &self.cards
     }
@@ -170,30 +133,13 @@ impl Hand {
     /// # Panics
     ///
     /// Panics if `index` is outside the range `0..=4`.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let hand = Hand::new([card_a, card_k, card_q, card_j, card_t], 1);
-    /// let first = hand.card(0);
-    /// assert_eq!(first, card_a);
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn card(&self, index: usize) -> Card {
         self.cards[index]
     }
 
     /// Returns the hand's category as a `HandRank` (for example, `Flush` or `Full House`).
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // assuming `hand` is a previously constructed `Hand`
-    /// let hand: Hand = unimplemented!();
-    /// let rank = hand.rank();
-    /// // `rank` is a `HandRank` value classifying the hand
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn rank(&self) -> HandRank {
         self.rank
     }
@@ -203,15 +149,7 @@ impl Hand {
     /// # Returns
     ///
     /// The strength value of the hand (`1..=7462`).
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // given a `Hand` instance named `hand`
-    /// let s = hand.strength();
-    /// assert!(s >= 1 && s <= 7462);
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn strength(&self) -> u16 {
         self.strength
     }
@@ -221,29 +159,13 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if the hand's rank equals `rank`, `false` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let hand = Hand::new([Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts], 1);
-    /// assert!(hand.is_rank(HandRank::StraightFlush));
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub fn is_rank(&self, rank: HandRank) -> bool {
         self.rank == rank
     }
 
     /// Checks whether the hand is a straight flush, counting a royal flush as a straight flush.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let hand = Hand::new([Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts], 1);
-    /// assert!(hand.is_straight_flush());
-    /// ```
-    ///
-    /// @returns `true` if the hand is a straight flush (royal flush counts), `false` otherwise.
-    #[must_use] 
+    #[must_use]
     pub fn is_straight_flush(&self) -> bool {
         self.rank == HandRank::StraightFlush
     }
@@ -252,15 +174,7 @@ impl Hand {
     ///
     /// # Returns
     /// `true` if the hand is a royal flush, `false` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // Construct a royal flush (Ace-high straight flush) with strength 1.
-    /// let hand = Hand::new([Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts], 1);
-    /// assert!(hand.is_royal_flush());
-    /// ``` 
-    #[must_use] 
+    #[must_use]
     pub const fn is_royal_flush(&self) -> bool {
         self.strength == 1
     }
@@ -270,7 +184,7 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if the hand's rank is Four of a Kind, `false` otherwise.
-    #[must_use] 
+    #[must_use]
     pub fn is_four_of_a_kind(&self) -> bool {
         self.rank == HandRank::FourOfAKind
     }
@@ -280,17 +194,7 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if the hand's rank is `FullHouse`, `false` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // Construct a hand known to map to Full House by strength range (167..=322).
-    /// // `cards` can be any five `Card` values; only `strength` determines the rank here.
-    /// let cards = [/* five Card values */];
-    /// let hand = Hand::new(cards, 200);
-    /// assert!(hand.is_full_house());
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub fn is_full_house(&self) -> bool {
         self.rank == HandRank::FullHouse
     }
@@ -299,13 +203,13 @@ impl Hand {
     ///
     /// # Returns
     /// `true` if the hand's rank is `Flush`, `false` otherwise.
-    #[must_use] 
+    #[must_use]
     pub fn is_flush(&self) -> bool {
         self.rank == HandRank::Flush
     }
 
     /// Check if this hand is a straight.
-    #[must_use] 
+    #[must_use]
     pub fn is_straight(&self) -> bool {
         self.rank == HandRank::Straight
     }
@@ -315,21 +219,13 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if the hand's rank is Three of a Kind, `false` otherwise.
-    #[must_use] 
+    #[must_use]
     pub fn is_three_of_a_kind(&self) -> bool {
         self.rank == HandRank::ThreeOfAKind
     }
 
     /// Determines whether this hand's rank is Two Pair.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // Construct a hand whose strength falls in the Two Pair range (2468..=3325)
-    /// // let hand = Hand::new(cards, 3000);
-    /// // assert!(hand.is_two_pair());
-    /// ``` 
-    #[must_use] 
+    #[must_use]
     pub fn is_two_pair(&self) -> bool {
         self.rank == HandRank::TwoPair
     }
@@ -338,14 +234,14 @@ impl Hand {
     ///
     /// # Returns
     ///
-    /// `true` if the hand's rank is `OnePair`, `false` otherwise. 
-    #[must_use] 
+    /// `true` if the hand's rank is `OnePair`, `false` otherwise.
+    #[must_use]
     pub fn is_one_pair(&self) -> bool {
         self.rank == HandRank::OnePair
     }
 
     /// Check if this hand is high card only.
-    #[must_use] 
+    #[must_use]
     pub fn is_high_card(&self) -> bool {
         self.rank == HandRank::HighCard
     }
@@ -358,14 +254,7 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if this hand's strength is less than the other's strength (lower is better), `false` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // given two evaluated hands `a` and `b`
-    /// assert_eq!(a.beats(&b), a.strength() < b.strength());
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn beats(&self, other: &Self) -> bool {
         self.strength < other.strength
     }
@@ -377,16 +266,7 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if both hands have the same strength, `false` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// // Construct two hands with the same strength (cards elided for brevity).
-    /// let h1 = Hand::new([Card::AS, Card::KS, Card::QS, Card::JS, Card::TS], 1);
-    /// let h2 = Hand::new([Card::AH, Card::KH, Card::QH, Card::JH, Card::TH], 1);
-    /// assert!(h1.ties(&h2));
-    /// ```
-    #[must_use] 
+    #[must_use]
     pub const fn ties(&self, other: &Self) -> bool {
         self.strength == other.strength
     }
@@ -398,7 +278,7 @@ impl Hand {
     /// # Returns
     ///
     /// `true` if this hand's strength is greater than the other hand's strength, `false` otherwise.
-    #[must_use] 
+    #[must_use]
     pub const fn loses_to(&self, other: &Self) -> bool {
         self.strength > other.strength
     }
@@ -434,15 +314,6 @@ impl fmt::Display for Hand {
 
 impl From<([Card; 5], u16)> for Hand {
     /// Creates a Hand from a tuple containing five cards and a numeric strength.
-    ///
-    /// # Examples
-    ///
-    /// ```ignore
-    /// let cards = [Card::As, Card::Ks, Card::Qs, Card::Js, Card::Ts];
-    /// let hand = Hand::from((cards, 1));
-    /// assert!(hand.is_royal_flush());
-    /// assert_eq!(hand.strength(), 1);
-    /// ```
     fn from((cards, strength): ([Card; 5], u16)) -> Self {
         Self::new(cards, strength)
     }

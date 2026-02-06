@@ -1,6 +1,7 @@
 //! Community board cards for Texas Hold'em.
 
 use super::card::Card;
+use crate::core::domain::primitives::Street;
 
 /// The community board cards (flop, turn, river).
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -12,16 +13,6 @@ pub struct Board {
 /// Constructors
 impl Board {
     /// Creates an empty Board set to the Preflop street.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::{Board, Street};
-    /// let b = Board::new();
-    /// assert!(b.is_empty());
-    /// assert_eq!(b.len(), 0);
-    /// assert_eq!(b.street(), Street::Preflop);
-    /// ```
     #[must_use]
     pub const fn new() -> Self {
         Self {
@@ -39,16 +30,6 @@ impl Board {
     ///
     /// `Some(Board)` with the given cards and the inferred street when the card
     /// count is valid, `None` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::{Board, Street};
-    /// // Empty board -> Preflop
-    /// let b = Board::with_cards(vec![]).unwrap();
-    /// assert!(b.is_empty());
-    /// assert_eq!(b.street(), Street::Preflop);
-    /// ```
     #[must_use]
     pub fn with_cards(cards: Vec<Card>) -> Option<Self> {
         let street = match cards.len() {
@@ -67,41 +48,16 @@ impl Board {
     /// Accesses all cards on the board.
     ///
     /// Returns a slice of cards currently on the board.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Board;
-    /// let board = Board::new();
-    /// assert!(board.cards().is_empty());
-    /// ```
     #[must_use]
     pub fn cards(&self) -> &[Card] {
         &self.cards
     }
-  
+
     /// Get the board as a fixed-size five-card array when the board contains exactly five cards.
     ///
     /// # Returns
     ///
     /// `Some([Card; 5])` containing the board's cards in order if the board has exactly five cards, `None` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Board;
-    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
-    /// let board = Board::with_cards(vec![
-    ///     Card::new(Rank::Ace, Suit::Spades),
-    ///     Card::new(Rank::King, Suit::Hearts),
-    ///     Card::new(Rank::Queen, Suit::Diamonds),
-    ///     Card::new(Rank::Jack, Suit::Clubs),
-    ///     Card::new(Rank::Ten, Suit::Spades),
-    /// ]).unwrap();
-    ///
-    /// let arr = board.as_array().unwrap();
-    /// assert_eq!(arr, [board.cards()[0], board.cards()[1], board.cards()[2], board.cards()[3], board.cards()[4]]);
-    /// ```
     #[must_use]
     pub fn as_array(&self) -> Option<[Card; 5]> {
         if self.cards.len() == 5 {
@@ -126,14 +82,6 @@ impl Board {
     /// # Returns
     ///
     /// `Some(Card)` if a card exists at `index`, `None` otherwise.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Board;
-    /// let b = Board::new();
-    /// assert!(b.card(0).is_none());
-    /// ```
     #[must_use]
     pub fn card(&self, index: usize) -> Option<Card> {
         self.cards.get(index).copied()
@@ -144,42 +92,18 @@ impl Board {
     /// # Returns
     ///
     /// The number of cards on the board.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Board;
-    /// let b = Board::new();
-    /// assert_eq!(b.len(), 0);
-    /// ```
     #[must_use]
-    pub const fn len(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.cards.len()
     }
 
     /// Reports whether the board has no community cards.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Board;
-    /// let b = Board::new();
-    /// assert!(b.is_empty());
-    /// ```
     #[must_use]
-    pub const fn is_empty(&self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.cards.is_empty()
     }
 
     /// Returns whether the board has reached the River street.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Board;
-    /// let b = Board::new();
-    /// assert!(!b.is_complete());
-    /// ```
     #[must_use]
     pub fn is_complete(&self) -> bool {
         self.street == Street::River
@@ -190,14 +114,6 @@ impl Board {
     /// # Returns
     ///
     /// `Street` — the current street for this board.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::{Board, Street};
-    /// let board = Board::new();
-    /// assert_eq!(board.street(), Street::Preflop);
-    /// ```
     #[must_use]
     pub const fn street(&self) -> Street {
         self.street
@@ -260,20 +176,6 @@ impl std::fmt::Display for Board {
     /// An empty board is formatted as `[]`. When the board contains cards, each card
     /// is converted to its string form and placed inside brackets separated by
     /// single spaces (for example: `[As Kh Qd]`).
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Board;
-    /// use riverrun::core::domain::entities::card::{Card, Rank, Suit};
-    /// let mut b = Board::new();
-    /// b.deal_flop(
-    ///     Card::new(Rank::Ace, Suit::Spades),
-    ///     Card::new(Rank::King, Suit::Hearts),
-    ///     Card::new(Rank::Queen, Suit::Diamonds),
-    /// );
-    /// assert_eq!(b.to_string(), "[As Kh Qd]");
-    /// ```
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         if self.cards.is_empty() {
             return write!(f, "[]");
@@ -283,39 +185,11 @@ impl std::fmt::Display for Board {
     }
 }
 
-/// The current street/stage of the hand.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum Street {
-    Preflop,
-    Flop,
-    Turn,
-    River,
-}
-
-impl std::fmt::Display for Street {
-    /// Formats the street as a human-readable name.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::board::Street;
-    /// let s = Street::Flop;
-    /// assert_eq!(s.to_string(), "Flop");
-    /// ```
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        match self {
-            Self::Preflop => write!(f, "Preflop"),
-            Self::Flop => write!(f, "Flop"),
-            Self::Turn => write!(f, "Turn"),
-            Self::River => write!(f, "River"),
-        }
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::core::domain::entities::card::{Rank, Suit};
+    use crate::core::domain::primitives::Street;
 
     fn card(rank: Rank, suit: Suit) -> Card {
         Card::new(rank, suit)

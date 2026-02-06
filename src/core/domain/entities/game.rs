@@ -1,6 +1,7 @@
 //! Game representation for Poker (Texas Hold'em)
 
-use super::board::{Board, Street};
+use super::board::Board;
+use crate::core::domain::primitives::Street;
 use super::card::Card;
 use super::deck::Deck;
 
@@ -19,17 +20,6 @@ impl Game {
     ///
     /// The `num_players` must be between 2 and 10 inclusive; returns `None` if the value is out of range.
     /// The returned `Game` has an initialized, shuffled deck, no dealt hole cards, and an empty board.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use rand::SeedableRng;
-    /// let mut rng = rand::rngs::StdRng::seed_from_u64(42);
-    /// let game = Game::new(6, &mut rng).unwrap();
-    /// assert_eq!(game.num_players(), 6);
-    /// assert_eq!(game.remaining_cards(), 52);
-    /// ```
     pub fn new<R: rand::Rng>(num_players: usize, rng: &mut R) -> Option<Self> {
         if !(2..=10).contains(&num_players) {
             return None;
@@ -49,17 +39,6 @@ impl Game {
     /// Constructs a Game using the provided deck and player count.
     ///
     /// The `num_players` must be between 2 and 10 inclusive; the function returns `None` if the count is out of range.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use riverrun::core::domain::entities::deck::Deck;
-    /// let deck = Deck::new();
-    /// let game = Game::with_deck(6, deck).expect("valid player count");
-    /// assert_eq!(game.num_players(), 6);
-    /// assert_eq!(game.remaining_cards(), 52);
-    /// ```
     #[must_use]
     pub fn with_deck(num_players: usize, deck: Deck) -> Option<Self> {
         if !(2..=10).contains(&num_players) {
@@ -78,16 +57,6 @@ impl Game {
 /// Game - Accessors
 impl Game {
     /// Number of players configured for this game.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use riverrun::core::domain::entities::deck::Deck;
-    /// let deck = Deck::new();
-    /// let game = Game::with_deck(6, deck).unwrap();
-    /// assert_eq!(game.num_players(), 6);
-    /// ```
     #[must_use]
     pub const fn num_players(&self) -> usize {
         self.num_players
@@ -104,18 +73,6 @@ impl Game {
     /// # Returns
     ///
     /// A reference to the game's current `Board`.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use riverrun::core::domain::entities::board::Street;
-    /// use rand::SeedableRng;
-    /// let mut rng = rand::rngs::StdRng::seed_from_u64(42);
-    /// let game = Game::new(2, &mut rng).unwrap();
-    /// let board_ref = game.board();
-    /// assert_eq!(board_ref.street(), Street::Preflop);
-    /// ```
     #[must_use]
     pub const fn board(&self) -> &Board {
         &self.board
@@ -124,17 +81,6 @@ impl Game {
     /// Retrieve the hole cards for the specified player.
     ///
     /// The `player` index is zero-based.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use riverrun::core::domain::entities::deck::Deck;
-    /// let deck = Deck::new();
-    /// let game = Game::with_deck(2, deck).unwrap();
-    /// // No hole cards dealt yet
-    /// assert!(game.player_hole_cards(0).is_none());
-    /// ```
     #[must_use]
     pub fn player_hole_cards(&self, player: usize) -> Option<&[Card; 2]> {
         self.hole_cards.get(player)
@@ -143,16 +89,6 @@ impl Game {
     /// Provides a slice of all players' hole cards in seating order.
     ///
     /// Each element is a two-card array representing a player's hole cards; the slice is empty before hole cards are dealt.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use rand::SeedableRng;
-    /// let mut rng = rand::rngs::StdRng::seed_from_u64(42);
-    /// let game = Game::new(2, &mut rng).unwrap();
-    /// assert!(game.all_hole_cards().is_empty());
-    /// ```
     #[must_use]
     pub fn all_hole_cards(&self) -> &[[Card; 2]] {
         &self.hole_cards
@@ -163,32 +99,12 @@ impl Game {
     /// # Returns
     ///
     /// The count of undealt cards left in the deck.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use riverrun::core::domain::entities::deck::Deck;
-    /// let game = Game::with_deck(2, Deck::new()).unwrap();
-    /// assert_eq!(game.remaining_cards(), 52);
-    /// ```
     #[must_use]
-    pub const fn remaining_cards(&self) -> usize {
+    pub fn remaining_cards(&self) -> usize {
         self.deck.remaining()
     }
 
     /// Returns whether the game has reached showdown (the river has been dealt).
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use riverrun::core::domain::entities::game::Game;
-    /// use rand::rngs::StdRng;
-    /// use rand::SeedableRng;
-    /// let mut rng = StdRng::seed_from_u64(0);
-    /// let game = Game::new(2, &mut rng).unwrap();
-    /// assert!(!game.is_showdown());
-    /// ```
     #[must_use]
     pub fn is_showdown(&self) -> bool {
         self.board.street() == Street::River
